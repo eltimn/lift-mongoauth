@@ -1,0 +1,60 @@
+package com.eltimn
+package auth.mongo
+
+import java.util.Date
+
+import org.joda.time.DateTime
+
+import net.liftweb._
+import common._
+import http.S
+import mongodb.record._
+import mongodb.record.field._
+import record.MandatoryTypedField
+
+import org.bson.types.ObjectId
+
+trait ProtoAuthToken[T <: ProtoAuthToken[T]] extends MongoRecord[T] {
+  self: T =>
+
+  def id: MandatoryTypedField[_]
+  def userId: MongoRefField[_, _]
+
+  object expires extends DateField(this) {
+    override def defaultValue = ((new DateTime).plusHours(48)).toDate
+  }
+
+  def authLink = S.hostAndPath+"/auth?token="+id.toString
+}
+
+trait AuthTokenMeta[T <: ProtoAuthToken[T]] {
+  self: T =>
+
+  def find(in: Any): Box[T]
+}
+
+
+trait ProtoAuthTokenMeta[ModelType <: ProtoAuthToken[ModelType], IdType]
+extends MongoMetaRecord[ModelType] with AuthTokenMeta[ModelType]
+{
+  self: ModelType =>
+
+  def createForUser(uid: IdType): ModelType
+
+  def deleteAllByUser(userId: IdType) {
+    delete("userId", userId)
+  }
+}
+
+class SimpleAuthToken extends ProtoAuthToken[SimpleAuthToken] with ObjectIdPk[SimpleAuthToken] {
+  def meta = SimpleAuthToken
+
+  object userId extends ObjectIdRefField(this, SimpleUser)
+}
+object SimpleAuthToken extends SimpleAuthToken with ProtoAuthTokenMeta[SimpleAuthToken, ObjectId] {
+  override def collectionName = "user.authtokens"
+
+  def createForUser(uid: ObjectId): SimpleAuthToken = {
+    createRecord.userId(uid).save
+  }
+}
