@@ -22,15 +22,10 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
     "ch.qos.logback" % "logback-classic" % "0.9.26" % "provided",
     "org.scala-tools.testing" %% "specs" % specsVersion % "test",
-    "org.mindrot" % "jbcrypt" % "0.3m" % "compile",
-    "eu.getintheloop" %% "lift-shiro" % "0.0.4-SNAPSHOT" % "compile",
-    "commons-collections" % "commons-collections" % "3.2.1" % "test",
-    "commons-logging" % "commons-logging" % "1.1.1" % "test"
+    "org.mindrot" % "jbcrypt" % "0.3m" % "compile"
   )
 }
 
-resolvers += "Shiro Snapshots" at "https://repository.apache.org/content/repositories/snapshots/"
-
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
-defaultExcludes ~= (_ || "*~")
+//defaultExcludes ~= (_ || "*~")

@@ -1,39 +1,145 @@
-package com.eltimn
-package auth.mongo
+package com.eltimn.auth.mongo
 
 import java.util.UUID
 import scala.xml.{NodeSeq, Text}
-
-import org.apache.shiro._
-import authc.{AuthenticationInfo, SimpleAuthenticationInfo}
-import authz.{AuthorizationInfo, SimpleAuthorizationInfo}
 
 import org.bson.types.ObjectId
 
 import net.liftweb._
 import common._
-import http.{RequestVar, S}
+import http.{CleanRequestVarOnSessionTransition, RequestVar, S, SessionVar}
 import mongodb.record._
 import mongodb.record.field._
-import net.liftweb.record.MandatoryTypedField
-import net.liftweb.record.field.{PasswordField => _, _}
-import net.liftweb.util.FieldError
-import net.liftweb.util.Helpers._
+import record.MandatoryTypedField
+import record.field.{PasswordField => _, _}
+import util.FieldError
+import util.Helpers
 
-import com.mongodb.{QueryBuilder}
+import com.mongodb.QueryBuilder
 
 /**
- * AuthUser is a base class that gives you a "User" that has roles and permissions for using with Shiro.
+ * AuthUser is a base class that gives you a "User" that has roles and permissions.
  */
 trait AuthUser {
+  /*
+   * String representing the User ID
+   */
+  def userIdAsString: String
+
+  /*
+   * A list of this user's permissions
+   */
   def authPermissions: Set[String]
+
+  /*
+   * A list of this user's roles
+   */
   def authRoles: Set[String]
 }
 
-trait AuthUserMeta {
-  def findAuthenticatioInfo(login: Any, realmName: String): Box[AuthenticationInfo]
-  def findAuthorizationInfo(principal: Any): Box[AuthorizationInfo]
+
+trait AuthUserMeta[UserType <: AuthUser, IdType] {
+  //def findAuthenticatioInfo(login: Any, realmName: String): Box[AuthenticationInfo]
+  //def findAuthorizationInfo(principal: Any): Box[AuthorizationInfo]
+
+  /*
+   * Always true when the user request var is defined.
+   */
+  def isLoggedIn: Boolean
+  /*
+   * User logged in by supplying password. False if auto logged in by ExtSession or LoginToken.
+   */
+  def isAuthenticated: Boolean
+  /*
+   * Current user has the given role
+   */
+  def hasRole(role: String): Boolean
+  def lacksRole(role: String): Boolean = !hasRole(role)
+  def hasAnyRoles(roles: Seq[String]) = roles exists (r => hasRole(r.trim))
+
+  /*
+   * Current user has the given permission
+   */
+  def hasPermission(permission: String): Boolean
+  def lacksPermission(permission: String): Boolean = !hasPermission(permission)
+
+  /*
+   * Log the current user out
+   */
+  def logUserOut(): Unit
+
+  /*
+   * Log user in when using a LoginToken
+   */
+  def logUserInFromToken(id: String): Box[Unit] = Empty
+
+  /*
+   * The LoginTokenMeta used, if any
+   */
+  def loginTokenMeta: Box[AuthLoginTokenMeta[_, IdType]] = Empty
 }
+
+/*
+ * Trait that has login related code
+ */
+trait UserLifeCycle[UserType <: AuthUser] {
+  protected lazy val siteName = AuthRules.siteName.vend
+  protected lazy val sysEmail = AuthRules.systemEmail.vend
+  protected lazy val sysUsername = AuthRules.systemUsername.vend
+
+   /*
+   * Given a String representing the User ID, find the user
+   */
+  def findByStringId(id: String): Box[UserType]
+
+  // log in/out lifecycle callbacks
+  def onLogIn: List[UserType => Unit] = Nil
+  def onLogOut: List[Box[UserType] => Unit] = Nil
+
+  // current userId stored in the session.
+  private object curUserId extends SessionVar[Box[String]](Empty)
+  def currentUserId: Box[String] = curUserId.is
+
+  private object curUserIsAuthenticated extends SessionVar[Boolean](false)
+
+  // Request var that holds the User instance
+  private object curUser extends RequestVar[Box[UserType]](currentUserId.flatMap(findByStringId))
+  with CleanRequestVarOnSessionTransition {
+    override lazy val __nameSalt = Helpers.nextFuncName
+  }
+  def currentUser: Box[UserType] = curUser.is
+
+  def isLoggedIn: Boolean = currentUserId.isDefined
+  def isAuthenticated: Boolean = curUserIsAuthenticated.is
+
+  def hasRole(role: String): Boolean = currentUser.map(_.authRoles.exists(_ == role)).openOr(false)
+  /* TODO: Write this so it behaves like Shiro's WildCardPermission */
+  def hasPermission(permission: String): Boolean = currentUser.map(_.authPermissions.exists(_ == permission)).openOr(false)
+
+  def logUserIdIn(id: String) {
+    curUser.remove()
+    curUserId(Full(id))
+  }
+
+  def logUserIn(who: UserType, isAuthed: Boolean) {
+    curUserId.remove()
+    curUserIsAuthenticated.remove()
+    curUser.remove()
+    curUserId(Full(who.userIdAsString))
+    curUserIsAuthenticated(isAuthed)
+    curUser(Full(who))
+    onLogIn.foreach(_(who))
+  }
+
+  def logUserOut() {
+    onLogOut.foreach(_(currentUser))
+    curUserId.remove()
+    curUserIsAuthenticated.remove()
+    curUser.remove()
+    S.session.foreach(_.destroySession())
+  }
+}
+
 
 /*
  * Mongo version of AuthUser
@@ -42,7 +148,7 @@ trait MongoAuthUser[T <: MongoAuthUser[T]] extends MongoRecord[T] with AuthUser 
   self: T =>
 
   def id: MandatoryTypedField[_]
-  //def email: MandatoryTypedField[_]
+  def email: StringField[_]
   //def fancyEmail: String
 }
 
@@ -53,9 +159,9 @@ trait MongoAuthUser[T <: MongoAuthUser[T]] extends MongoRecord[T] with AuthUser 
 trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
   self: T =>
 
-  def isRegistered: Boolean
+  import Helpers._
 
-  //val displayNames: Map[String, String] = Map.empty
+  def isRegistered: Boolean
 
   object username extends StringField(this, 32) {
     override def displayName = "Username"
@@ -95,7 +201,8 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
       valMaxLen(254, "Email must be 254 characters or less.") _ ::
       super.validations
   }
-
+  // email address has been verified by clicking on a LoginToken link
+  object verified extends BooleanField(this)
   object password extends PasswordField(this, 32, Full(confirmPassword)) {
     override def displayName = "Password"
     override def shouldDisplay_? = !isRegistered
@@ -131,61 +238,49 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
   lazy val authPermissions: Set[String] = (permissions.is ::: roles.permissions).toSet
   lazy val authRoles: Set[String] = roles.names.toSet
 
-  lazy val fancyEmail = username.is+" <"+email.is+">"
+  lazy val fancyEmail = AuthUtil.fancyEmail(username.is, email.is)
 }
 
-trait ProtoAuthUserMeta[ModelType <: MongoAuthUser[ModelType], IdType]
-extends MongoMetaRecord[ModelType] with AuthUserMeta
-{
-  self: ModelType =>
+trait ProtoAuthUserMeta[UserType <: MongoAuthUser[UserType], IdType]
+extends MongoMetaRecord[UserType] with AuthUserMeta[UserType, IdType] with UserLifeCycle[UserType] {
+  self: UserType =>
 
-  import scala.collection.JavaConversions._
+  //import scala.collection.JavaConversions._
 
   // create a new user
-  def createUser(username: String, email: String, password: String, permissions: List[String]): Box[ModelType]
+  //def createUser(username: String, email: String, password: String, permissions: List[String]): Box[ModelType]
 
-  // current userId stored by Shiro. This is stored in a session that's managed by Shiro.
-  def currentUserId: Box[IdType] = shiro.Utils.principal[IdType]
+  //def loginTokenForUser(user: UserType): Box[AuthLoginToken] = Empty
 
-  // Request var that holds the User instance
-  private object currentUserVar extends RequestVar[Box[ModelType]](currentUserId.flatMap(findAny(_)))
-  def currentUser: Box[ModelType] = currentUserVar.is
+  //def loginTokenForUserId(uid: IdType) = loginTokenMeta.map(ltm => ltm.createForUserId(uid))
 
-  def findAuthenticatioInfo(login: Any, realmName: String): Box[AuthenticationInfo] =
-    (Box !! login.asInstanceOf[String])
-      //.flatMap(findByLogin(_))
-      .flatMap(findPasswordForUser(_))
-      .map { case (id, pwd) =>
-        new SimpleAuthenticationInfo(id, pwd, realmName)
-      }
+  def deleteAllLoginTokens(uid: IdType): Unit = loginTokenMeta.foreach(ltm => ltm.deleteAllByUserId(uid))
 
-  def findAuthorizationInfo(userId: Any): Box[AuthorizationInfo] = {
-    val idToFind = userId.asInstanceOf[IdType]
-    val user =
-      if (currentUserVar.set_? && currentUserVar.is.map(_.id.is).exists(_ == id))
-        currentUserVar.is
-      else
-        findAny(idToFind)
+  // send an email to the user with a link for authorization
+  def sendAuthLink(user: UserType): Unit
+  def sendAuthLink(email: String, token: AuthLoginToken): Unit = {
+    import net.liftweb.util.Mailer._
 
-    user.map { u =>
-      val info = new SimpleAuthorizationInfo(u.authRoles)
-      info.setStringPermissions(u.authPermissions)
-      info
-    }
-  }
+    val msgTxt =
+      """
+        |Someone requested a link to change your password on the %s website.
+        |
+        |If you did not request this, you can safely ignore it. It will expire 48 hours from the time this message was sent.
+        |
+        |Follow the link below or copy and paste it into your internet browser.
+        |
+        |%s
+        |
+        |Thanks,
+        |%s
+      """.format(siteName, token.url, sysUsername).stripMargin
 
-  // Get a user's password and id
-  def findPasswordForUser(login: String): Box[(IdType, String)]
-
-  // helper method for fulfilling findPasswordForUser(login: String) method.
-  def findPasswordForUser(login: String, queryField: String, passwordField: String): Box[(IdType, String)] = {
-    useColl { coll =>
-      val qry = QueryBuilder.start(queryField).is(login).get
-      val flds = QueryBuilder.start(passwordField).is(1).get
-      tryo(coll.findOne(qry, flds)).flatMap(Box !! _)
-        .filter(dbo => dbo.containsField(passwordField) && dbo.containsField("_id"))
-        .map(dbo => (dbo.get("_id").asInstanceOf[IdType], dbo.get(passwordField).asInstanceOf[String]))
-    }
+    sendMail(
+      From(AuthRules.systemFancyEmail),
+      Subject("%s Password Help".format(siteName)),
+      To(email),
+      PlainMailBodyType(msgTxt)
+    )
   }
 }
 
@@ -193,6 +288,7 @@ class SimpleUser extends ProtoAuthUser[SimpleUser] with ObjectIdPk[SimpleUser] {
   def meta = SimpleUser
 
   def isRegistered: Boolean = !id.is.isNew
+  def userIdAsString: String = id.toString
 }
 
 object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser, ObjectId] {
@@ -203,9 +299,27 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser, ObjectId
   ensureIndex((email.name -> 1), true)
   ensureIndex((username.name -> 1), true)
 
-  def findPasswordForUser(login: String): Box[(ObjectId, String)] =
-    findPasswordForUser(login, email.name, password.name) or findPasswordForUser(login, username.name, password.name)
+  //def findByEmail(eml: String): Box[SimpleUser] = find(email.name, eml)
 
+  def findByStringId(id: String): Box[SimpleUser] =
+    if (ObjectId.isValid(id)) find(new ObjectId(id))
+    else Empty
+
+  override def loginTokenMeta = Full(ObjectIdLoginToken)
+
+  override def logUserInFromToken(id: String): Box[Unit] = findByStringId(id).map { user =>
+    user.verified(true)
+    user.save
+    logUserIn(user, false)
+  }
+
+  def loginTokenForUserId(uid: ObjectId) = loginTokenMeta.map(ltm => ltm.createForUserId(uid))
+
+  def sendAuthLink(user: SimpleUser): Unit = loginTokenForUserId(user.id.is).foreach { lt =>
+    sendAuthLink(user.email.is, lt)
+  }
+
+  /*
   def createUser(username: String, email: String, password: String, permissions: List[String]): Box[SimpleUser] = {
     val newUser = createRecord
       .username(username)
@@ -215,45 +329,6 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser, ObjectId
       .save
 
     Full(newUser)
-  }
-
-  /*
-  val siteName = "Example Site"
-  val systemEmail = "info@example.com"
-  val systemUser: SimpleUser = find("email", systemEmail) openOr {
-    createRecord
-      .username("%s Staff".format(siteName))
-      .email(systemEmail)
-      .verified(true)
-      .password("example", true)
-      .save
-  }
-
-  // send an email to the user with a link for authorization
-  def sendAuthLink(user: SimpleUser) {
-    import net.liftweb.util.Mailer._
-
-    val authToken = SimpleAuthToken.createForUser(user.id.is)
-
-    val msgTxt =
-      """
-        |Someone requested a link to change your password on the %s website.
-        |
-        |If you did not request this, you can safely ignore it. It will expire 48 hours from the time this message was sent.
-        |
-        |Follow the link below or copy and paste it into your internet browser.
-      """+authToken.authLink+"""
-        |
-        |Thanks,
-        |%s Staff
-      """.format(siteName, siteName).stripMargin
-
-    sendMail(
-      From(systemUser.fancyEmail),
-      Subject("%s Password Help".format(siteName)),
-      To(user.email.is),
-      PlainMailBodyType(msgTxt)
-    )
   }
   */
 }

@@ -1,5 +1,4 @@
-package com.eltimn
-package auth.mongo
+package com.eltimn.auth.mongo
 
 import org.apache.shiro._
 import authc._
@@ -73,20 +72,6 @@ class BCryptCredentialsMatcher extends CredentialsMatcher {
       encryptedPassword <- tryo(info.getCredentials.asInstanceOf[String])
       toTest <- tryo(upToken.getPassword) // Array[Char]
     } yield PasswordField.isMatch(toTest.mkString, encryptedPassword)).openOr(false)
-  }
-}
-
-
-object AuthUtil {
-  def tryo[T](f: => T): Box[T] = {
-    try {
-      f match {
-        case null => Empty
-        case x => Full(x)
-      }
-    } catch {
-      case e => Failure(e.getMessage, Full(e), Empty)
-    }
   }
 }
 

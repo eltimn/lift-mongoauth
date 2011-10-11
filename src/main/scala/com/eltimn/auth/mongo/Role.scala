@@ -1,5 +1,4 @@
-package com.eltimn
-package auth.mongo
+package com.eltimn.auth.mongo
 
 import net.liftweb._
 import mongodb.record._

@@ -1,5 +1,4 @@
-package com.eltimn
-package auth.mongo
+package com.eltimn.auth.mongo
 
 import java.util.regex._
 import scala.xml._
@@ -20,15 +19,16 @@ import Helpers._
 import S._
 import JE._
 
-object PasswordField extends Factory {
+object PasswordRules extends Factory {
 
   val minPasswordLength = new FactoryMaker[Int](6) {}
   val logRounds = new FactoryMaker[Int](10) {}
 
   private[auth] def hashpw(in: String): Box[String] =
     tryo(BCrypt.hashpw(in, BCrypt.gensalt(logRounds.vend)))
-    
-  def isMatch(toTest: String, encryptedPassword: String): Boolean = tryo(BCrypt.checkpw(toTest, encryptedPassword)).openOr(false)
+
+  def isMatch(toTest: String, encryptedPassword: String): Boolean =
+    tryo(BCrypt.checkpw(toTest, encryptedPassword)).openOr(false)
 }
 
 trait PasswordTypedField extends TypedField[String] {
@@ -41,7 +41,7 @@ trait PasswordTypedField extends TypedField[String] {
    */
   def hashIt {
     valueBox foreach { v =>
-      setBox(PasswordField.hashpw(v))
+      setBox(PasswordRules.hashpw(v))
     }
   }
 
@@ -51,7 +51,7 @@ trait PasswordTypedField extends TypedField[String] {
    */
   def isMatch(toTest: String): Boolean = valueBox
     .filter(_.length > 0)
-    .map(p => PasswordField.isMatch(toTest, p))
+    .map(p => PasswordRules.isMatch(toTest, p))
     .openOr(false)
 
   def elem = S.fmapFunc(SFuncHolder(this.setFromAny(_))) {
@@ -72,8 +72,8 @@ class PasswordField[OwnerType <: Record[OwnerType]](
 )
 extends StringField[OwnerType](rec, maxLength) with PasswordTypedField {
 
-  val minLength = PasswordField.minPasswordLength.vend
-  
+  val minLength = PasswordRules.minPasswordLength.vend
+
   /*
    * If confirmField is Full, check it against the inputted value.
    */
@@ -82,7 +82,7 @@ extends StringField[OwnerType](rec, maxLength) with PasswordTypedField {
 	    FieldError(this, Text(msg))
 	  ).toList
 	}
-  
+
   override def validations =
     valMatch("Passwords must match.") _ ::
 		valMinLen(minLength, "Password must be at least "+minLength+" characters.") _ ::
@@ -90,7 +90,7 @@ extends StringField[OwnerType](rec, maxLength) with PasswordTypedField {
 		super.validations
 
 	override def setFilter = trim _ :: super.setFilter
-	
+
 	/*
 	 * Use this when creating users programatically. It allows chaining:
 	 * User.createRecord.email("test@domain.com").password("pass1", true).save
@@ -100,7 +100,7 @@ extends StringField[OwnerType](rec, maxLength) with PasswordTypedField {
 	def apply(in: String, isPlain: Boolean): OwnerType = {
     val hashed =
       if (isPlain)
-        PasswordField.hashpw(in) openOr ""
+        PasswordRules.hashpw(in) openOr ""
       else
         in
     if (owner.meta.mutable_?) {
