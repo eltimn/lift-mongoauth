@@ -2,16 +2,43 @@
 
 Authentication and Authorization module for Lift-MongoDB-Record.
 
+# Installation
+
+Jars are available via the liftmodules.net repo.
+
+SBT 0.11
+
+    resolvers += "Liftmodules repo" at "https://repository-liftmodules.forge.cloudbees.com/release"
+
+    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.4-SNAPSHOT-0.1"
+
+# Configuration
+
+You must set the __MongoAuth.authUserMeta__ object that you will be using (see below). Most likely in boot:
+
+    // init mongoauth
+    MongoAuth.authUserMeta.default.set(User)
+    MongoAuth.indexUrl.default.set(Sitemap.home.path)
+
+See _MongoAuth_ for other settings that can be overriden.
+
+You will also probably want to add the logout and login-token menus.
+
+    LiftRules.setSiteMap(SiteMap(List(
+      Locs.buildLogoutMenu,
+      Locs.buildLoginTokenMenu
+    ) :_*))
 
 # Creating a User Data Model
 
-This module provides several traits for constructing user model classes, which includes roles and permissions.
+This module provides several traits for constructing user model classes, which include roles and permissions.
 
 There are several ways you can utilize this module:
 
 ## SimpleUser
 
 _model.SimpleUser_ is a fully implemented user model, but is not extensible in any way. This is only useful for testing and demos.
+This shows what is necessary to create a user from _ProtoAuthUser_.
 
 ## ProtoAuthUser
 
@@ -31,27 +58,60 @@ _ProtoAuthUserMeta_ is a combination of _AuthUserMeta_ and _UserLifeCycle_ trait
 functionality and login/logout functionality for MongoMetaRecord objects. No matter which version you use for the
 MongoRecord user class, you can use this trait to define your MongoMetaRecord, if it provides sufficient functionality.
 
-## Roles and Permissions
+"Remember Me" functionality is provided by _ExtSession_.
+
+_LoginToken_ provides a way for users that forgot their password can log in and change it. Users are sent a link with a token (an ObjectId)
+on the url. When they click on it they can be handled appropriately. The implementation is left up to you.
+
+# Roles and Permissions
 
 Permissions are defined using a simple case class. They have three parts; domain, actions, entities. This was heavily
-influenced by [Apache Shiro's](http://shiro.apache.org/ WildcardPermission).
+influenced by [Apache Shiro's](http://shiro.apache.org/) WildcardPermission.
 Please see the [JavaDoc for WildcardPermission](http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authz/permission/WildcardPermission.html)
 for detailed information.
 
+See [PermissionSuite](https://github.com/eltimn/lift-mongoauth/blob/master/src/test/scala/net.liftmodules/mongoauth/PermissionSuite.scala) for examples.
+
+PermissionListField provides a way to store permissions for a user. It stores them as a list of strings.
+
+Example:
+
+    user.permissions(List(Permission("printer", "print"), Permission("user", "edit", "123")))
+
+    assert(user.hasPermission(Permission("printer", "manage")) == false)
+
+Role is a MongoRecord that provides a way to group a set of permissions. A user's full set of permissions is calculated using the permissions
+from any roles assigned to them and the individual permissions assigned to them. There are also LocParams that can be used to check for roles.
+
+Example:
+
+  val superuser = Role.createRecord.id("superuser").permissions(List(Permission.all)).save
+
+  user.roles(List(superuser))
+
+  assert(user.hasRole("superuser") == true)
+  assert(user.lacksRole("superuser") == false)
+  assert(user.lacksRole("admin") == true)
+
+
+# SiteMap LocParams
+
+The _Locs_ trait and companion object provide some useful _LocParam_s that use can use when defing your _SiteMap_.
+
+This code was inspired by the [lift-shiro](https://github.com/timperrett/lift-shiro) module.
+
 Examples:
 
-    val printer = Permission("printer")
-
-    assert(printer.implies(Permission.all) == true)
-    assert(printer.implies(Permission.none) == false)
-    assert(printer.implies(Permission("printer")) == true)
-    assert(printer.implies(Permission("a")) == false)
-
-Role
+    Meun.i("Settings") / "settings" >> RequireLoggedIn
+    Meun.i("Password") / "password" >> RequireAuthentication
+    Meun.i("Admin") / "admin" >> HasRole("admin")
+    Meun.i("EditEntitiy") / "admin" / "entity" >> HasPermission(Permission("entity", "edit"))
 
 
-## Sitemap LocParams
+"Authenticated" means the user logged in by supplying their password. "Logged In" means the user was logged in by either
+an ExtSession or LoginToken, or they are Authenticated.
 
+# License
 
-## Acknowledgments
+Apache v2.0. See LICENSE.txt
 

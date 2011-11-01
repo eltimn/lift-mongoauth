@@ -1,6 +1,6 @@
 name := "lift-auth-mongo"
 
-version := "0.1-SNAPSHOT"
+version := "2.4-SNAPSHOT-0.1"
 
 organization := "com.eltimn"
 
@@ -14,15 +14,7 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
     case "2.8.1" | "2.8.2" => "1.5.1"
     case _       => "1.6.1"
   }
-  val specsVersion = scalaVersion match {
-    case "2.8.0" => "1.6.5"
-    case "2.9.1" => "1.6.9"
-    case _       => "1.6.8"
-  }
-  val liftVersion = scalaVersion match {
-    //case "2.9.1" => "2.4-M4"
-    case _       => "2.4-SNAPSHOT"
-  }
+  val liftVersion = "2.4-SNAPSHOT"
   Seq(
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
     "ch.qos.logback" % "logback-classic" % "0.9.26" % "provided",
