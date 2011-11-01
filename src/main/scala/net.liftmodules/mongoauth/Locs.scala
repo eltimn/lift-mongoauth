@@ -1,4 +1,4 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
 
 import net.liftweb._
 import common._
@@ -8,24 +8,24 @@ import sitemap.Loc.{DispatchLocSnippets, EarlyResponse, If}
 
 object Locs extends Locs
 trait Locs {
-  private lazy val userMeta = AuthRules.authUserMeta.vend
+  private lazy val userMeta = MongoAuth.authUserMeta.vend
 
-  private lazy val indexUrl = AuthRules.indexUrl.vend
-  private lazy val loginUrl = AuthRules.loginUrl.vend
-  private lazy val logoutUrl = AuthRules.logoutUrl.vend
-  private lazy val loginTokenUrl = AuthRules.loginTokenUrl.vend
+  private lazy val indexUrl = MongoAuth.indexUrl.vend
+  private lazy val loginUrl = MongoAuth.loginUrl.vend
+  private lazy val logoutUrl = MongoAuth.logoutUrl.vend
+  private lazy val loginTokenUrl = MongoAuth.loginTokenUrl.vend
 
   // redirects
   def RedirectToLoginWithReferrer = {
     val uri = S.uriAndQueryString
-    RedirectWithState(loginUrl.toString, RedirectState(() => { LoginRedirect.set(uri) }))
+    RedirectWithState(loginUrl, RedirectState(() => { LoginRedirect.set(uri) }))
   }
 
-  def RedirectToIndex = RedirectResponse(indexUrl.toString)
-  def RedirectToIndexWithCookies = RedirectResponse(indexUrl.toString, S.responseCookies:_*)
+  def RedirectToIndex = RedirectResponse(indexUrl)
+  def RedirectToIndexWithCookies = RedirectResponse(indexUrl, S.responseCookies:_*)
 
   protected def DisplayError(message: String) = () =>
-    RedirectWithState(indexUrl.toString, RedirectState(() => S.error(message)))
+    RedirectWithState(indexUrl, RedirectState(() => S.error(message)))
 
   // Loc guards
   val RequireAuthentication = If(
@@ -65,8 +65,11 @@ trait Locs {
        DisplayError("You are the wrong role to access that resource."))
 
   // Menus
-  def buildLogoutMenu = Menu(Loc("Logout", logoutUrl.pathList,
-    S.??("logout"), logoutLocParams))
+  def buildLogoutMenu = Menu(Loc(
+    "Logout",
+    logoutUrl.split("/").filter(_.length > 0).toList,
+    S.??("logout"), logoutLocParams
+  ))
 
   protected def logoutLocParams = RequireLoggedIn ::
     EarlyResponse(() => {
@@ -75,8 +78,10 @@ trait Locs {
     }) :: Nil
 
 
-  def buildLoginTokenMenu = Menu(Loc("LoginToken", loginTokenUrl.pathList,
-      "LoginToken", loginTokenLocParams))
+  def buildLoginTokenMenu = Menu(Loc(
+    "LoginToken", loginTokenUrl.split("/").filter(_.length > 0).toList,
+    "LoginToken", loginTokenLocParams
+  ))
 
   protected def loginTokenLocParams = RequireNotLoggedIn ::
     EarlyResponse(() => userMeta.handleLoginToken) :: Nil

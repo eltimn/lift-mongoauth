@@ -1,4 +1,7 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
+package model
+
+import field._
 
 import java.util.{Locale, UUID}
 
@@ -28,10 +31,10 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
 
   ensureIndex((userId.name -> 1))
 
-  // AuthRules vars
-  private lazy val whenExpires = AuthRules.extSessionExpires.vend
-  private lazy val cookieName = AuthRules.extSessionCookieName.vend
-  private lazy val cookiePath = AuthRules.extSessionCookiePath.vend
+  // MongoAuth vars
+  private lazy val whenExpires = MongoAuth.extSessionExpires.vend
+  private lazy val cookieName = MongoAuth.extSessionCookieName.vend
+  private lazy val cookiePath = MongoAuth.extSessionCookiePath.vend
 
   // create an extSession
   def createExtSession(uid: ObjectId) {

@@ -1,5 +1,4 @@
-package com.eltimn
-package auth.mongo
+package net.liftmodules.mongoauth
 
 import java.util.UUID
 

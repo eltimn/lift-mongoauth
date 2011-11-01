@@ -1,4 +1,5 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
+package model
 
 import org.bson.types.ObjectId
 
@@ -27,19 +28,17 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
   override def onLogOut: List[Box[SimpleUser] => Unit] = List(
     x => logger.debug("User.onLogOut called."),
     boxedUser => boxedUser.foreach { u =>
-      LoginToken.deleteAllByUserId(u.id.is)
       ExtSession.deleteExtCookie()
-      ExtSession.deleteAllByUserId(u.id.is)
     }
   )
 
   /*
-   * AuthRules vars
+   * MongoAuth vars
    */
-  private lazy val siteName = AuthRules.siteName.vend
-  private lazy val sysUsername = AuthRules.systemUsername.vend
-  private lazy val indexUrl = AuthRules.indexUrl.vend
-  private lazy val loginTokenAfterUrl = AuthRules.loginTokenAfterUrl.vend
+  private lazy val siteName = MongoAuth.siteName.vend
+  private lazy val sysUsername = MongoAuth.systemUsername.vend
+  private lazy val indexUrl = MongoAuth.indexUrl.vend
+  private lazy val loginTokenAfterUrl = MongoAuth.loginTokenAfterUrl.vend
 
   /*
    * LoginToken
@@ -52,14 +51,14 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
   }
 
   override def handleLoginToken: Box[LiftResponse] = {
-    var respUrl = indexUrl.toString
+    var respUrl = indexUrl
     S.param("token").flatMap(LoginToken.findByStringId) match {
       case Full(at) if (at.expires.isExpired) => {
         S.error("Login token has expired")
         at.delete_!
       }
       case Full(at) => logUserInFromToken(at.userId.is) match {
-        case Full(_) => respUrl = loginTokenAfterUrl.toString
+        case Full(_) => respUrl = loginTokenAfterUrl
         case _ => S.error("User not found")
       }
       case _ => S.warning("Login token not provided")
@@ -90,7 +89,7 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
       """.format(siteName, token.url, sysUsername).stripMargin
 
     sendMail(
-      From(AuthRules.systemFancyEmail),
+      From(MongoAuth.systemFancyEmail),
       Subject("%s Password Help".format(siteName)),
       To(user.fancyEmail),
       PlainMailBodyType(msgTxt)

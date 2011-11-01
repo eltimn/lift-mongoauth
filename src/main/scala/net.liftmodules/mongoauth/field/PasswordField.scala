@@ -1,4 +1,5 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
+package field
 
 import java.util.regex._
 import scala.xml._

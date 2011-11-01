@@ -1,4 +1,4 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
 
 import org.joda.time.{Days, Hours, ReadablePeriod}
 
@@ -8,14 +8,14 @@ import http.{Factory, SessionVar, S}
 import sitemap.{LocPath, Menu}
 import util.Helpers
 
-object AuthRules extends Factory {
+object MongoAuth extends Factory {
   // AuthUserMeta object
-  val authUserMeta = new FactoryMaker[AuthUserMeta[_]](SimpleUser) {}
+  val authUserMeta = new FactoryMaker[AuthUserMeta[_]](model.SimpleUser) {}
 
   // urls
-  val indexUrl = new FactoryMaker[Path](Path(Nil)) {}
-  val loginUrl = new FactoryMaker[Path](Path("login" :: Nil)) {}
-  val logoutUrl = new FactoryMaker[Path](Path("logout" :: Nil)) {}
+  val indexUrl = new FactoryMaker[String]("/") {}
+  val loginUrl = new FactoryMaker[String]("/login") {}
+  val logoutUrl = new FactoryMaker[String]("/logout") {}
 
   // site settings
   val siteName = new FactoryMaker[String]("Example") {}
@@ -25,8 +25,8 @@ object AuthRules extends Factory {
   def systemFancyEmail = AuthUtil.fancyEmail(systemUsername.vend, systemEmail.vend)
 
   // LoginToken
-  val loginTokenUrl = new FactoryMaker[Path](Path("login-token" :: Nil)) {}
-  val loginTokenAfterUrl = new FactoryMaker[Path](Path("set-password" :: Nil)) {}
+  val loginTokenUrl = new FactoryMaker[String]("/login-token") {}
+  val loginTokenAfterUrl = new FactoryMaker[String]("/set-password") {}
   val loginTokenExpires = new FactoryMaker[ReadablePeriod](Hours.hours(48)) {}
 
   // ExtSession
@@ -39,10 +39,6 @@ object AuthRules extends Factory {
   val permissionPartDivider = new FactoryMaker[String](":") {}
   val permissionSubpartDivider = new FactoryMaker[String](",") {}
   //val permissionCaseSensitive = new FactoryMaker[Boolean](true) {}
-}
-
-case class Path(pathList: List[String]) {
-  override def toString: String = pathList.mkString("/","/","")
 }
 
 object AuthUtil {

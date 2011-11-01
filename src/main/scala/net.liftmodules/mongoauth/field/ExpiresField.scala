@@ -1,4 +1,5 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
+package field
 
 import org.joda.time.{ReadablePeriod, DateTime}
 

@@ -1,4 +1,6 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
+
+import model.SimpleUser
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.scalatest.matchers.ShouldMatchers
@@ -14,13 +16,14 @@ class SimpleUserSuite extends FunSuite with MongoTestKit with ShouldMatchers {
   test("SimpleUser saves permissions properly") {
     val printer = Permission("printer")
     val userEntity = Permission("user.users", "read")
+    val perms = List(printer, userEntity)
     val user = testUser
-      .permissions(List(printer, userEntity))
+      .permissions(perms)
       .save
     val userFromDb = SimpleUser.find(user.id.is)
     userFromDb should be ('defined)
-    userFromDb foreach { user2 =>
-      println(user2.permissions.toString)
+    userFromDb foreach { u =>
+      u.permissions.is should equal (perms)
     }
   }
 }

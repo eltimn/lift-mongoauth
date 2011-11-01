@@ -1,4 +1,7 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
+package model
+
+import field.PermissionListField
 
 import net.liftweb._
 import mongodb.record._
@@ -27,5 +30,5 @@ class Role private () extends MongoRecord[Role] {
 object Role extends Role with MongoMetaRecord[Role] {
   override def collectionName = "user.roles"
 
-  def findOrCreate(in: String): Role = find(in).openOr(createRecord.id(in).save)
+  def findOrCreateAndSave(in: String): Role = find(in).openOr(createRecord.id(in).save)
 }

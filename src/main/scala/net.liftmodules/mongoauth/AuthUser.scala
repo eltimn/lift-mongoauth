@@ -1,4 +1,7 @@
-package com.eltimn.auth.mongo
+package net.liftmodules.mongoauth
+
+import field._
+import model._
 
 import scala.xml.{NodeSeq, Text}
 
