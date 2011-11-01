@@ -5,7 +5,7 @@ Authentication and Authorization module for Lift-MongoDB-Record.
 
 # Creating a User Data Model
 
-This module provides several traits for constructing a User model, which includes roles and permissions.
+This module provides several traits for constructing user model classes, which includes roles and permissions.
 
 There are several ways you can utilize this module:
 
@@ -34,11 +34,14 @@ MongoRecord user class, you can use this trait to define your MongoMetaRecord, i
 ## Roles and Permissions
 
 Permissions are defined using a simple case class. They have three parts; domain, actions, entities. This was heavily
-influenced by "Apache Shiro's":http://shiro.apache.org/ WildcardPermission.
-Please see the "JavaDoc for WildcardPermission":http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authz/permission/WildcardPermission.html)
+influenced by [Apache Shiro's](http://shiro.apache.org/ WildcardPermission).
+Please see the [JavaDoc for WildcardPermission](http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authz/permission/WildcardPermission.html)
 for detailed information.
 
+Examples:
+
     val printer = Permission("printer")
+
     assert(printer.implies(Permission.all) == true)
     assert(printer.implies(Permission.none) == false)
     assert(printer.implies(Permission("printer")) == true)
