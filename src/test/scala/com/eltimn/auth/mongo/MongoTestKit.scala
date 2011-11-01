@@ -1,19 +1,17 @@
 package com.eltimn
 package auth.mongo
 
-import org.specs.Specification
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
 import net.liftweb._
 import mongodb._
 
 import com.mongodb.{Mongo, ServerAddress}
 
-trait MongoTestKit {
-  this: Specification =>
+trait MongoTestKit extends BeforeAndAfter {
+  this: FunSuite =>
 
   def dbName = "test_"+this.getClass.getName
-    .replace("$", "")
-    .replace("net.liftweb.mongodb.", "")
     .replace(".", "_")
     .toLowerCase
 
@@ -24,13 +22,14 @@ trait MongoTestKit {
 
   def debug = false
 
-  doBeforeSpec {
+  before {
     // define the dbs
     dbs foreach { case (id, srvr, name) =>
       MongoDB.defineDb(id, new Mongo(srvr), name)
     }
   }
 
+  /*
   def isMongoRunning: Boolean =
     try {
       if (dbs.length < 1)
@@ -45,10 +44,11 @@ trait MongoTestKit {
       case e: Exception => false
     }
 
-  def checkMongoIsRunning = isMongoRunning must beEqualTo(true).orSkipExample
+  def checkMongoIsRunning = if (!isMongoRunning) pending // isMongoRunning must beEqualTo(true).orSkipExample
+  */
 
-  doAfterSpec {
-    if (!debug && isMongoRunning) {
+  after {
+    if (!debug) {
       // drop the databases
       dbs foreach { case (id, _, _) =>
         MongoDB.use(id) { db => db.dropDatabase }

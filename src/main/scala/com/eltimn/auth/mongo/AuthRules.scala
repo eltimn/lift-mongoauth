@@ -1,5 +1,7 @@
 package com.eltimn.auth.mongo
 
+import org.joda.time.{Days, Hours, ReadablePeriod}
+
 import net.liftweb._
 import common._
 import http.{Factory, SessionVar, S}
@@ -7,35 +9,36 @@ import sitemap.{LocPath, Menu}
 import util.Helpers
 
 object AuthRules extends Factory {
-  /* config */
-  val authUserMeta = new FactoryMaker[AuthUserMeta[_, _]](SimpleUser) {}
-  //val authTokenMeta = new FactoryMaker[AuthTokenMeta[]](SimpleAuthToken) {}
-  //val authAfterAuthToken = new FactoryMaker[String]("/set-password") {} // where to send user after logging in with an AuthToken
+  // AuthUserMeta object
+  val authUserMeta = new FactoryMaker[AuthUserMeta[_]](SimpleUser) {}
 
-  //def menus: List[Menu] = List(shiro.sitemap.Locs.logoutMenu)
-
-  //val baseURL = new FactoryMaker[Path](Nil) {}
-  val indexURL = new FactoryMaker[Path](Path(Nil)) {}
-  val loginURL = new FactoryMaker[Path](Path("login" :: Nil)) {}
-  val logoutURL = new FactoryMaker[Path](Path("logout" :: Nil)) {}
-  val authURL = new FactoryMaker[Path](Path("auth" :: Nil)) {}
+  // urls
+  val indexUrl = new FactoryMaker[Path](Path(Nil)) {}
+  val loginUrl = new FactoryMaker[Path](Path("login" :: Nil)) {}
+  val logoutUrl = new FactoryMaker[Path](Path("logout" :: Nil)) {}
 
   // site settings
   val siteName = new FactoryMaker[String]("Example") {}
   val systemEmail = new FactoryMaker[String]("info@example.com") {}
   val systemUsername = new FactoryMaker[String]("Example Staff") {}
-  //val systemUser = new FactoryMaker[Box[AuthUser]](Empty) {}
 
   def systemFancyEmail = AuthUtil.fancyEmail(systemUsername.vend, systemEmail.vend)
-}
 
-/*
- * Wrapper for Menu locations
- */
-case class MenuLoc(menu: Menu) {
-  lazy val path: Path = Path(menu.loc.link.uriList)
-  lazy val url: String = path.toString
-  lazy val fullUrl: String = S.hostAndPath+url
+  // LoginToken
+  val loginTokenUrl = new FactoryMaker[Path](Path("login-token" :: Nil)) {}
+  val loginTokenAfterUrl = new FactoryMaker[Path](Path("set-password" :: Nil)) {}
+  val loginTokenExpires = new FactoryMaker[ReadablePeriod](Hours.hours(48)) {}
+
+  // ExtSession
+  val extSessionExpires = new FactoryMaker[ReadablePeriod](Days.days(90)) {}
+  val extSessionCookieName = new FactoryMaker[String]("EXTSESSID") {}
+  val extSessionCookiePath = new FactoryMaker[String]("/") {}
+
+  // Permission
+  val permissionWilcardToken = new FactoryMaker[String]("*") {}
+  val permissionPartDivider = new FactoryMaker[String](":") {}
+  val permissionSubpartDivider = new FactoryMaker[String](",") {}
+  //val permissionCaseSensitive = new FactoryMaker[Boolean](true) {}
 }
 
 case class Path(pathList: List[String]) {
@@ -57,6 +60,9 @@ object AuthUtil {
   def fancyEmail(name: String, email: String): String = "%s <%s>".format(name, email)
 }
 
-object LoginRedirect extends SessionVar[Box[String]](Empty){
+/*
+ * User gets sent here after a successful login.
+ */
+object LoginRedirect extends SessionVar[Box[String]](Empty) {
   override def __nameSalt = Helpers.nextFuncName
 }

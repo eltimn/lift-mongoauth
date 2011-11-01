@@ -6,24 +6,26 @@ import http.{RedirectResponse, RedirectWithState, S, RedirectState}
 import sitemap.{Loc, Menu}
 import sitemap.Loc.{DispatchLocSnippets, EarlyResponse, If}
 
-object Locs {
+object Locs extends Locs
+trait Locs {
   private lazy val userMeta = AuthRules.authUserMeta.vend
 
-  private lazy val indexURL = AuthRules.indexURL.vend
-  private lazy val loginURL = AuthRules.loginURL.vend
-  private lazy val logoutURL = AuthRules.logoutURL.vend
-  private lazy val authURL = AuthRules.authURL.vend
+  private lazy val indexUrl = AuthRules.indexUrl.vend
+  private lazy val loginUrl = AuthRules.loginUrl.vend
+  private lazy val logoutUrl = AuthRules.logoutUrl.vend
+  private lazy val loginTokenUrl = AuthRules.loginTokenUrl.vend
 
   // redirects
   def RedirectToLoginWithReferrer = {
     val uri = S.uriAndQueryString
-    RedirectWithState(loginURL.toString, RedirectState(() => { LoginRedirect.set(uri) }))
+    RedirectWithState(loginUrl.toString, RedirectState(() => { LoginRedirect.set(uri) }))
   }
 
-  def RedirectToIndexURL = RedirectResponse(indexURL.toString)
+  def RedirectToIndex = RedirectResponse(indexUrl.toString)
+  def RedirectToIndexWithCookies = RedirectResponse(indexUrl.toString, S.responseCookies:_*)
 
-  private def DisplayError(message: String) = () =>
-    RedirectWithState(indexURL.toString, RedirectState(() => S.error(message)))
+  protected def DisplayError(message: String) = () =>
+    RedirectWithState(indexUrl.toString, RedirectState(() => S.error(message)))
 
   // Loc guards
   val RequireAuthentication = If(
@@ -32,7 +34,7 @@ object Locs {
 
   val RequireNoAuthentication = If(
     () => !userMeta.isAuthenticated,
-    () => RedirectToIndexURL)
+    () => RedirectToIndex)
 
   val RequireLoggedIn = If(
     () => userMeta.isLoggedIn,
@@ -40,7 +42,7 @@ object Locs {
 
   val RequireNotLoggedIn = If(
     () => !userMeta.isLoggedIn,
-    () => RedirectToIndexURL)
+    () => RedirectToIndex)
 
   def HasRole(role: String) =
     If(() => userMeta.hasRole(role),
@@ -50,11 +52,11 @@ object Locs {
     If(() => userMeta.lacksRole(role),
       DisplayError("You lack the sufficient role to access that resource."))
 
-  def HasPermission(permission: String) =
+  def HasPermission(permission: Permission) =
     If(() => userMeta.hasPermission(permission),
       DisplayError("Insufficient permissions to access that resource."))
 
-  def LacksPermission(permission: String) =
+  def LacksPermission(permission: Permission) =
     If(() => userMeta.lacksPermission(permission),
       DisplayError("Overqualified permissions to access that resource."))
 
@@ -62,30 +64,21 @@ object Locs {
     If(() => userMeta.hasAnyRoles(roles),
        DisplayError("You are the wrong role to access that resource."))
 
-  // MenuLocs
-  def buildLogoutLoc = MenuLoc(Menu(Loc("Logout", logoutURL.pathList,
-    S.??("logout"), logoutLocParams)))
+  // Menus
+  def buildLogoutMenu = Menu(Loc("Logout", logoutUrl.pathList,
+    S.??("logout"), logoutLocParams))
 
-  private def logoutLocParams = RequireLoggedIn ::
+  protected def logoutLocParams = RequireLoggedIn ::
     EarlyResponse(() => {
       if (userMeta.isLoggedIn) { userMeta.logUserOut() }
-      Full(RedirectToIndexURL)
+      Full(RedirectToIndexWithCookies)
     }) :: Nil
 
 
-  def buildAuthLoc = MenuLoc(Menu(Loc("Auth", authURL.pathList,
-      "Auth", authLocParams)))
+  def buildLoginTokenMenu = Menu(Loc("LoginToken", loginTokenUrl.pathList,
+      "LoginToken", loginTokenLocParams))
 
-  private def authLocParams = RequireNotLoggedIn ::
-    EarlyResponse(() => userMeta.loginTokenMeta.map(_.handleToken)) :: Nil
+  protected def loginTokenLocParams = RequireNotLoggedIn ::
+    EarlyResponse(() => userMeta.handleLoginToken) :: Nil
 
-  /*
-  object DefaultLogin
-    extends DispatchLocSnippets
-    with shiro.snippet.DefaultUsernamePasswordLogin {
-    def dispatch = {
-      case "login" => render
-    }
-  }
-  */
 }

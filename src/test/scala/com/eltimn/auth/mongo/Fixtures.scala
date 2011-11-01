@@ -17,13 +17,13 @@ class CustomUser private () extends MongoAuthUser[CustomUser] with UUIDPk[Custom
 
   object email extends EmailField(this, 254)
 
-  lazy val authPermissions: Set[String] = Set.empty
+  lazy val authPermissions: Set[Permission] = Set.empty
   lazy val authRoles: Set[String] = Set.empty
 
   def userIdAsString: String = id.toString
 }
 
-object CustomUser extends CustomUser with ProtoAuthUserMeta[CustomUser, UUID] {
+object CustomUser extends CustomUser with ProtoAuthUserMeta[CustomUser] {
   /*
   def createUser(username: String, email: String, password: String, permissions: List[String]): Box[CustomUser] = {
     val newUser = createRecord
@@ -35,18 +35,6 @@ object CustomUser extends CustomUser with ProtoAuthUserMeta[CustomUser, UUID] {
 
   def findByStringId(id: String): Box[CustomUser] = Helpers
     .tryo(UUID.fromString(id)).flatMap(find(_))
-
-  override def loginTokenMeta = Full(UUIDLoginToken)
-
-  def loginTokenForUserId(uid: UUID) = loginTokenMeta.map(ltm => ltm.createForUserId(uid))
-
-  def sendAuthLink(user: CustomUser): Unit = loginTokenForUserId(user.id.is).foreach { lt =>
-    sendAuthLink(user.email.is, lt)
-  }
-
-  override def logUserInFromToken(id: String): Box[Unit] = findByStringId(id).map { user =>
-    logUserIn(user, false)
-  }
 }
 
 
@@ -55,7 +43,7 @@ class UltraCustomUser private () extends MongoAuthUser[UltraCustomUser] with UUI
 
   object email extends EmailField(this, 254)
 
-  lazy val authPermissions: Set[String] = Set.empty
+  lazy val authPermissions: Set[Permission] = Set.empty
   lazy val authRoles: Set[String] = Set.empty
 
   def userIdAsString: String = id.toString

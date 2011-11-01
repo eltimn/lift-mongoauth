@@ -16,45 +16,52 @@ import net.liftweb.record._
 import net.liftweb.record.field._
 import util._
 import Helpers._
-import S._
 import JE._
 
-object PasswordRules extends Factory {
+/*
+ * Hashed password structure:
+ * <salt><encrypted-pwd>
+ * Where salt is:
+ * $2a$<logRounds><salt-value>
+ * Salt length: 29
+ * Total length: 60
+ */
 
-  val minPasswordLength = new FactoryMaker[Int](6) {}
+object PasswordField extends Factory with Loggable {
+
   val logRounds = new FactoryMaker[Int](10) {}
 
-  private[auth] def hashpw(in: String): Box[String] =
+  def hashpw(in: String): Box[String] =
     tryo(BCrypt.hashpw(in, BCrypt.gensalt(logRounds.vend)))
-
-  def isMatch(toTest: String, encryptedPassword: String): Boolean =
-    tryo(BCrypt.checkpw(toTest, encryptedPassword)).openOr(false)
-}
-
-trait PasswordTypedField extends TypedField[String] {
-  def maxLength: Int
-  def confirmField: Box[TypedField[String]]
-
-  /*
-   * Call this after validation and before it is saved to the db to hash
-   * the password. Eg. in the finish method of a screen.
-   */
-  def hashIt {
-    valueBox foreach { v =>
-      setBox(PasswordRules.hashpw(v))
-    }
-  }
 
   /*
    * jBCrypt throws "String index out of range" exception
    * if password is an empty String
    */
+  def isMatch(toTest: String, encryptedPassword: String): Boolean =
+    if (toTest.length > 0 && encryptedPassword.length > 0)
+      tryo(BCrypt.checkpw(toTest, encryptedPassword)).openOr(false)
+    else
+      false
+}
+
+trait PasswordTypedField extends TypedField[String] {
+  def maxLength: Int
+  def minLength: Int
+
+  /*
+   * Call this after validation and before it is saved to the db to hash
+   * the password. Eg. in the finish method of a screen.
+   */
+  def hashIt: Unit = valueBox foreach { v =>
+    setBox(PasswordField.hashpw(v))
+  }
+
   def isMatch(toTest: String): Boolean = valueBox
-    .filter(_.length > 0)
-    .map(p => PasswordRules.isMatch(toTest, p))
+    .map(p => PasswordField.isMatch(toTest, p))
     .openOr(false)
 
-  def elem = S.fmapFunc(SFuncHolder(this.setFromAny(_))) {
+  def elem = S.fmapFunc(S.SFuncHolder(this.setFromAny(_))) {
     funcName => <input type="password" maxlength={maxLength.toString}
       name={funcName}
       value={valueBox openOr ""}
@@ -68,28 +75,9 @@ trait PasswordTypedField extends TypedField[String] {
 }
 
 class PasswordField[OwnerType <: Record[OwnerType]](
-  rec: OwnerType, maxLength: Int, val confirmField: Box[TypedField[String]]
+  rec: OwnerType, val minLength: Int, maxLength: Int
 )
 extends StringField[OwnerType](rec, maxLength) with PasswordTypedField {
-
-  val minLength = PasswordRules.minPasswordLength.vend
-
-  /*
-   * If confirmField is Full, check it against the inputted value.
-   */
-  private def valMatch(msg: => String)(value: String): List[FieldError] = {
-    confirmField.filterNot(_.get == value).map(p =>
-	    FieldError(this, Text(msg))
-	  ).toList
-	}
-
-  override def validations =
-    valMatch("Passwords must match.") _ ::
-		valMinLen(minLength, "Password must be at least "+minLength+" characters.") _ ::
-		valMaxLen(maxLength, "Password must be "+maxLength+" characters or less.") _ ::
-		super.validations
-
-	override def setFilter = trim _ :: super.setFilter
 
 	/*
 	 * Use this when creating users programatically. It allows chaining:
@@ -100,7 +88,7 @@ extends StringField[OwnerType](rec, maxLength) with PasswordTypedField {
 	def apply(in: String, isPlain: Boolean): OwnerType = {
     val hashed =
       if (isPlain)
-        PasswordRules.hashpw(in) openOr ""
+        PasswordField.hashpw(in) openOr ""
       else
         in
     if (owner.meta.mutable_?) {

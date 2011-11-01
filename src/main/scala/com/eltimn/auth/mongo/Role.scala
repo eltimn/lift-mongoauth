@@ -17,8 +17,15 @@ class Role private () extends MongoRecord[Role] {
     override def name = "_id"
     override def displayName = "Name"
   }
-  object permissions extends MongoListField[Role, String](this)
+  object permissions extends PermissionListField(this)
+
+  override def equals(other: Any): Boolean = other match {
+    case r: Role => r.id.is == this.id.is
+    case _ => false
+  }
 }
 object Role extends Role with MongoMetaRecord[Role] {
   override def collectionName = "user.roles"
+
+  def findOrCreate(in: String): Role = find(in).openOr(createRecord.id(in).save)
 }
