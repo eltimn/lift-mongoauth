@@ -1,8 +1,8 @@
-name := "lift-auth-mongo"
+name := "mongoauth"
 
 version := "2.4-SNAPSHOT-0.1"
 
-organization := "com.eltimn"
+organization := "net.liftmodules"
 
 scalaVersion := "2.9.1"
 
