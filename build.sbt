@@ -1,6 +1,6 @@
 name := "lift-auth-mongo"
 
-version := "2.4-SNAPSHOT-0.1-SNAPSHOT"
+version := "2.4-SNAPSHOT-0.1"
 
 organization := "com.eltimn"
 
