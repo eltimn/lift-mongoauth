@@ -28,3 +28,5 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 //defaultExcludes ~= (_ || "*~")
+
+checksums := Nil // Lift's checksums are failing
