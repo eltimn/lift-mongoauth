@@ -6,13 +6,13 @@ organization := "com.eltimn"
 
 scalaVersion := "2.9.1"
 
-crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.2", "2.8.1", "2.8.0")
+crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.1", "2.8.0")
 
 resolvers += ScalaToolsSnapshots
 
 libraryDependencies <++= (scalaVersion) { scalaVersion =>
   val scalatestVersion = scalaVersion match {
-    case "2.8.0" => "1.3"
+    case "2.8.0" => "1.3.1.RC2"
     case "2.8.1" | "2.8.2" => "1.5.1"
     case _       => "1.6.1"
   }
