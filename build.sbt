@@ -8,6 +8,8 @@ scalaVersion := "2.9.1"
 
 crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.2", "2.8.1", "2.8.0")
 
+resolvers += ScalaToolsSnapshots
+
 libraryDependencies <++= (scalaVersion) { scalaVersion =>
   val scalatestVersion = scalaVersion match {
     case "2.8.0" => "1.3"

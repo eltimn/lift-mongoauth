@@ -60,7 +60,7 @@ MongoRecord user class, you can use this trait to define your MongoMetaRecord, i
 
 "Remember Me" functionality is provided by _ExtSession_.
 
-_LoginToken_ provides a way for users that forgot their password can log in and change it. Users are sent a link with a token (an ObjectId)
+_LoginToken_ provides a way for users that forgot their password to log in and change it. Users are sent a link with a token (an ObjectId)
 on the url. When they click on it they can be handled appropriately. The implementation is left up to you.
 
 # Roles and Permissions
@@ -85,13 +85,13 @@ from any roles assigned to them and the individual permissions assigned to them.
 
 Example:
 
-  val superuser = Role.createRecord.id("superuser").permissions(List(Permission.all)).save
+    val superuser = Role.createRecord.id("superuser").permissions(List(Permission.all)).save
 
-  user.roles(List(superuser))
+    user.roles(List(superuser))
 
-  assert(user.hasRole("superuser")) == true)
-  assert(user.lacksRole("superuser")) == false)
-  assert(user.lacksRole("admin")) == true)
+    assert(user.hasRole("superuser")) == true)
+    assert(user.lacksRole("superuser")) == false)
+    assert(user.lacksRole("admin")) == true)
 
 
 # SiteMap LocParams
@@ -110,6 +110,10 @@ Examples:
 
 "Authenticated" means the user logged in by supplying their password. "Logged In" means the user was logged in by either
 an ExtSession or LoginToken, or they are Authenticated.
+
+# Example Implementation
+
+The [lift-mongo](https://github.com/eltimn/lift-mongo.g8) giter8 template provides a fully functioning implementation of a basic user system.
 
 # License
 
