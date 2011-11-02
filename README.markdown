@@ -89,14 +89,14 @@ Example:
 
   user.roles(List(superuser))
 
-  assert(user.hasRole("superuser") == true)
-  assert(user.lacksRole("superuser") == false)
-  assert(user.lacksRole("admin") == true)
+  assert(user.hasRole("superuser")) == true)
+  assert(user.lacksRole("superuser")) == false)
+  assert(user.lacksRole("admin")) == true)
 
 
 # SiteMap LocParams
 
-The _Locs_ trait and companion object provide some useful _LocParam_s that use can use when defing your _SiteMap_.
+The _Locs_ trait and companion object provide some useful _LocParams_ that use can use when defing your _SiteMap_.
 
 This code was inspired by the [lift-shiro](https://github.com/timperrett/lift-shiro) module.
 
