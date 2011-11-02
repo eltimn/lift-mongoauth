@@ -1,12 +1,12 @@
 name := "lift-auth-mongo"
 
-version := "2.4-SNAPSHOT-0.1"
+version := "2.4-SNAPSHOT-0.1-SNAPSHOT"
 
 organization := "com.eltimn"
 
 scalaVersion := "2.9.1"
 
-crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.1", "2.8.0")
+crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.1")
 
 resolvers += ScalaToolsSnapshots
 
@@ -30,3 +30,9 @@ scalacOptions ++= Seq("-deprecation", "-unchecked")
 //defaultExcludes ~= (_ || "*~")
 
 checksums := Nil // Lift's checksums are failing
+
+// To publish to the Cloudbees repos:
+
+publishTo := Some("liftmodules repository" at "https://repository-liftmodules.forge.cloudbees.com/release/")
+ 
+credentials += Credentials( file("/private/liftmodules/cloudbees.credentials") ) 
