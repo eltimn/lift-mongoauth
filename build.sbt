@@ -6,9 +6,7 @@ organization := "net.liftmodules"
 
 scalaVersion := "2.9.1"
 
-crossScalaVersions := Seq("2.9.0-1", "2.8.1")
-
-resolvers += ScalaToolsSnapshots
+crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.8.1")
 
 libraryDependencies <++= (scalaVersion) { scalaVersion =>
   val scalatestVersion = scalaVersion match {
@@ -26,10 +24,6 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
 }
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
-
-//defaultExcludes ~= (_ || "*~")
-
-checksums := Nil // Lift's checksums are failing
 
 // To publish to the Cloudbees repos:
 
