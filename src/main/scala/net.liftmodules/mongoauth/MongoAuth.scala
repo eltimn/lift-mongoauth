@@ -55,6 +55,42 @@ object MongoAuth extends Factory {
   val permissionPartDivider = new FactoryMaker[String](":") {}
   val permissionSubpartDivider = new FactoryMaker[String](",") {}
   //val permissionCaseSensitive = new FactoryMaker[Boolean](true) {}
+
+  def init(
+    authUserMeta: AuthUserMeta[_] = model.SimpleUser,
+    indexUrl: String = "/",
+    loginUrl: String = "/login",
+    logoutUrl: String = "/logout",
+    siteName: String = "Example",
+    systemEmail: String = "info@example.com",
+    systemUsername: String= "Example Staff",
+    loginTokenUrl: String = "/login-token",
+    loginTokenAfterUrl: String = "/set-password",
+    loginTokenExpires: ReadablePeriod = Hours.hours(48),
+    extSessionExpires: ReadablePeriod = Days.days(90),
+    extSessionCookieName: String = "EXTSESSID",
+    extSessionCookiePath: String = "/",
+    permissionWilcardToken: String = "*",
+    permissionPartDivider: String = ":",
+    permissionSubpartDivider: String = ","
+  ): Unit = {
+    this.authUserMeta.default.set(authUserMeta)
+    this.indexUrl.default.set(indexUrl)
+    this.loginUrl.default.set(loginUrl)
+    this.logoutUrl.default.set(logoutUrl)
+    this.siteName.default.set(siteName)
+    this.systemEmail.default.set(systemEmail)
+    this.systemUsername.default.set(systemUsername)
+    this.loginTokenUrl.default.set(loginTokenUrl)
+    this.loginTokenAfterUrl.default.set(loginTokenAfterUrl)
+    this.loginTokenExpires.default.set(loginTokenExpires)
+    this.extSessionExpires.default.set(extSessionExpires)
+    this.extSessionCookieName.default.set(extSessionCookieName)
+    this.extSessionCookiePath.default.set(extSessionCookiePath)
+    this.permissionWilcardToken.default.set(permissionWilcardToken)
+    this.permissionPartDivider.default.set(permissionPartDivider)
+    this.permissionSubpartDivider.default.set(permissionSubpartDivider)
+  }
 }
 
 object AuthUtil {

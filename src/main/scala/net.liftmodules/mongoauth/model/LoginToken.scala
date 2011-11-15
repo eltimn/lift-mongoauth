@@ -15,7 +15,7 @@ import record.MandatoryTypedField
 import org.bson.types.ObjectId
 
 /**
-  * This is a token for autmatically logging a user in
+  * This is a token for automatically logging a user in
   */
 class LoginToken extends MongoRecord[LoginToken] with ObjectIdPk[LoginToken] {
   def meta = LoginToken

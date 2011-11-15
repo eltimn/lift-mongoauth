@@ -1,6 +1,6 @@
 name := "mongoauth"
 
-version := "2.4-M5-0.1"
+version := "2.4-M5-0.2"
 
 organization := "net.liftmodules"
 
