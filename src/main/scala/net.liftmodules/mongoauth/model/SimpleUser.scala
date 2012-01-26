@@ -5,7 +5,7 @@ import org.bson.types.ObjectId
 
 import net.liftweb._
 import common._
-import http.{LiftResponse, RedirectResponse, Req, S}
+import http.{StringField => _, BooleanField => _, _}
 import mongodb.record.field._
 import util.Helpers
 
@@ -38,33 +38,36 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
   private lazy val siteName = MongoAuth.siteName.vend
   private lazy val sysUsername = MongoAuth.systemUsername.vend
   private lazy val indexUrl = MongoAuth.indexUrl.vend
+  private lazy val registerUrl = MongoAuth.registerUrl.vend
   private lazy val loginTokenAfterUrl = MongoAuth.loginTokenAfterUrl.vend
 
   /*
    * LoginToken
    */
-  private def logUserInFromToken(uid: ObjectId): Box[Unit] = find(uid).map { user =>
-    user.verified(true)
-    user.save
-    logUserIn(user, false)
-    LoginToken.deleteAllByUserId(user.id.is)
-  }
-
   override def handleLoginToken: Box[LiftResponse] = {
-    var respUrl = indexUrl
-    S.param("token").flatMap(LoginToken.findByStringId) match {
+    val resp = S.param("token").flatMap(LoginToken.findByStringId) match {
       case Full(at) if (at.expires.isExpired) => {
-        S.error("Login token has expired")
         at.delete_!
+        RedirectWithState(indexUrl, RedirectState(() => { S.error("Login token has expired") }))
       }
-      case Full(at) => logUserInFromToken(at.userId.is) match {
-        case Full(_) => respUrl = loginTokenAfterUrl
-        case _ => S.error("User not found")
-      }
-      case _ => S.warning("Login token not provided")
+      case Full(at) => find(at.userId.is).map(user => {
+        if (user.validate.length == 0) {
+          user.verified(true)
+          user.save
+          logUserIn(user)
+          at.delete_!
+          RedirectResponse(loginTokenAfterUrl)
+        }
+        else {
+          at.delete_!
+          regUser(user)
+          RedirectWithState(registerUrl, RedirectState(() => { S.notice("Please complete the registration form") }))
+        }
+      }).openOr(RedirectWithState(indexUrl, RedirectState(() => { S.error("User not found") })))
+      case _ => RedirectWithState(indexUrl, RedirectState(() => { S.warning("Login token not provided") }))
     }
 
-    Full(RedirectResponse(respUrl))
+    Full(resp)
   }
 
   // send an email to the user with a link for logging in
@@ -97,14 +100,6 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
   }
 
   /*
-   * ExtSession
-   */
-  private def logUserInFromExtSession(uid: ObjectId): Box[Unit] = find(uid).map { user =>
-    //createExtSession(es.userId.value) // make sure cookie expiration gets updated
-    logUserIn(user, false)
-  }
-
-  /*
   * Test for active ExtSession.
   */
   def testForExtSession: Box[Req] => Unit = {
@@ -112,11 +107,13 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
       logger.debug("ExtSession currentUserId: "+currentUserId.toString)
       if (currentUserId.isEmpty) {
         ExtSession.handleExtSession match {
-          case Full(es) => logUserInFromExtSession(es.userId.is)
+          case Full(es) => find(es.userId.is).foreach { user => logUserIn(user, false) }
           case Failure(msg, _, _) => logger.warn("Error logging user in with ExtSession: %s".format(msg))
           case Empty => logger.warn("Unknown error logging user in with ExtSession: Empty")
         }
       }
     }
   }
+
+  object regUser extends SessionVar[SimpleUser](currentUser openOr createRecord)
 }

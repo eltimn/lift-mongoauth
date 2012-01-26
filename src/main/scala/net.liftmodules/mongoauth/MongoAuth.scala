@@ -32,6 +32,7 @@ object MongoAuth extends Factory {
   val indexUrl = new FactoryMaker[String]("/") {}
   val loginUrl = new FactoryMaker[String]("/login") {}
   val logoutUrl = new FactoryMaker[String]("/logout") {}
+  val registerUrl = new FactoryMaker[String]("/register") {}
 
   // site settings
   val siteName = new FactoryMaker[String]("Example") {}

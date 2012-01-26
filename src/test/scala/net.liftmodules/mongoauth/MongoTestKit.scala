@@ -1,6 +1,6 @@
 package net.liftmodules.mongoauth
 
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.{BeforeAndAfter, WordSpec}
 
 import net.liftweb._
 import mongodb._
@@ -8,7 +8,7 @@ import mongodb._
 import com.mongodb.{Mongo, ServerAddress}
 
 trait MongoTestKit extends BeforeAndAfter {
-  this: FunSuite =>
+  this: WordSpec =>
 
   def dbName = "test_"+this.getClass.getName
     .replace(".", "_")
@@ -27,24 +27,6 @@ trait MongoTestKit extends BeforeAndAfter {
       MongoDB.defineDb(id, new Mongo(srvr), name)
     }
   }
-
-  /*
-  def isMongoRunning: Boolean =
-    try {
-      if (dbs.length < 1)
-        false
-      else {
-        dbs foreach { case (id, _, _) =>
-          MongoDB.use(id) ( db => { db.getLastError } )
-        }
-        true
-      }
-    } catch {
-      case e: Exception => false
-    }
-
-  def checkMongoIsRunning = if (!isMongoRunning) pending // isMongoRunning must beEqualTo(true).orSkipExample
-  */
 
   after {
     if (!debug) {

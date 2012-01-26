@@ -104,9 +104,11 @@ trait UserLifeCycle[UserType <: AuthUser] {
     .map(_.authRoles.exists(_ == role))
     .openOr(false)
 
-  def hasPermission(permission: Permission): Boolean = currentUser
-    .map(u => permission.implies(u.authPermissions))
-    .openOr(false)
+  def hasPermission(permission: Permission): Boolean = {
+    currentUser
+      .map(u => permission.implies(u.authPermissions))
+      .openOr(false)
+  }
 
   def logUserIn(who: UserType, isAuthed: Boolean = false, isRemember: Boolean = false) {
     curUserId.remove()

@@ -1,6 +1,6 @@
 name := "mongoauth"
 
-version := "2.4-M5-0.2"
+version := "2.4-0.3"
 
 organization := "net.liftmodules"
 
@@ -14,7 +14,7 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
     case "2.8.1" | "2.8.2" => "1.5.1"
     case _       => "1.6.1"
   }
-  val liftVersion = "2.4-M5"
+  val liftVersion = "2.4"
   Seq(
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
     "ch.qos.logback" % "logback-classic" % "0.9.26" % "provided",
