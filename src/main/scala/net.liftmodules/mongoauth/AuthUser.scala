@@ -191,9 +191,9 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
   object verified extends BooleanField(this) {
     override def displayName = "Verified"
   }
-  object password extends PasswordField(this, 6, 32) {
-    override def displayName = "Password"
-  }
+//  object password extends PasswordField(this, 6, 32) {
+//    override def displayName = "Password"
+//  }
   object permissions extends PermissionListField(this)
   object roles extends StringRefListField(this, Role) {
     def permissions: List[Permission] = objs.flatMap(_.permissions.is)
