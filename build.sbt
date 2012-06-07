@@ -27,6 +27,6 @@ scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 // To publish to the Cloudbees repos:
 
-publishTo := Some("liftmodules repository" at "https://repository-liftmodules.forge.cloudbees.com/release/")
+//publishTo := Some("liftmodules repository" at "https://repository-liftmodules.forge.cloudbees.com/release/")
 
-credentials += Credentials( file("/private/liftmodules/cloudbees.credentials") )
+//credentials += Credentials( file("/private/liftmodules/cloudbees.credentials") )

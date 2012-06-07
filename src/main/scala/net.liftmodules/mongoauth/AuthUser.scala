@@ -150,7 +150,7 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
   import Helpers._
 
   object username extends StringField(this, 32) {
-    override def displayName = "Username"
+    override def displayName = S.?("ui_login_username")
     override def setFilter = trim _ :: super.setFilter
 
     private def valUnique(msg: => String)(value: String): List[FieldError] = {
@@ -163,9 +163,9 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
     }
 
     override def validations =
-      valUnique("Another user is already using that username, please enter a different one") _ ::
-      valMinLen(3, "Username must be at least 3 characters") _ ::
-      valMaxLen(32, "Username must be less than 33 characters") _ ::
+      valUnique(S.?("base_user_err_username_duplicate")) _ ::
+      valMinLen(3,  S.?("base_user_err_must_at_least_characters").format(displayName, 3)) _ ::
+      valMaxLen(32, S.?("base_user_err_must_at_max_characters").format(displayName, 254)) _ ::
       super.validations
   }
 
@@ -173,7 +173,7 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
   * http://www.dominicsayers.com/isemail/
   */
   object email extends EmailField(this, 254) {
-    override def displayName = "Email"
+    override def displayName = S.?("ui_login_email")
     override def setFilter = trim _ :: toLower _ :: super.setFilter
 
     private def valUnique(msg: => String)(value: String): List[FieldError] = {
@@ -183,8 +183,9 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
     }
 
     override def validations =
-      valUnique("That email address is already registered with us") _  ::
-      valMaxLen(254, "Email must be 254 characters or less") _ ::
+      valUnique(S.?("base_user_err_email_duplicate")) _  ::
+      valMinLen(3, S.?("base_user_err_must_at_least_characters").format(displayName, 3)) _ ::
+      valMaxLen(254, S.?("base_user_err_must_at_max_characters").format(displayName, 254)) _ ::
       super.validations
   }
   // email address has been verified by clicking on a LoginToken link
