@@ -17,7 +17,7 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
   val liftVersion = "2.4"
   Seq(
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
-    "ch.qos.logback" % "logback-classic" % "0.9.26" % "provided",
+    "ch.qos.logback" % "logback-classic" % "1.0.0" % "provided",
     "org.scalatest" %% "scalatest" % scalatestVersion % "test",
     "org.mindrot" % "jbcrypt" % "0.3m" % "compile"
   )
