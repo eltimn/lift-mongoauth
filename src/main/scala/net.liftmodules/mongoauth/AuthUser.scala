@@ -82,6 +82,7 @@ trait UserLifeCycle[UserType <: AuthUser] {
 
   // log in/out lifecycle callbacks
   def onLogIn: List[UserType => Unit] = Nil
+  def onCreation: List[(UserType,String) => Unit] = Nil
   def onLogOut: List[Box[UserType] => Unit] = Nil
 
   // current userId stored in the session.
