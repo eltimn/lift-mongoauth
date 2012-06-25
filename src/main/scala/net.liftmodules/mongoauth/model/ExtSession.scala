@@ -39,7 +39,6 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
   // create an extSession
   def createExtSession(uid: ObjectId) {
     deleteExtCookie() // make sure existing cookie is removed
-    deleteAllByUserId(uid) // make sure all existing db entries are deleted
     val inst = createRecord
       .userId(uid)
       .save
@@ -70,9 +69,6 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
     }
   }
 
-  def deleteAllByUserId(uid: ObjectId) {
-    delete(userId.name, uid)
-  }
 
   def handleExtSession: Box[ExtSession] = {
     val extSess = for {
@@ -85,7 +81,6 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
     extSess match {
       case Failure(msg, _, _) => deleteExtCookie(); extSess // cookie is not valid, delete it
       case Full(es) if (es.expires.isExpired) => // if it's expired, delete it and the cookie
-        extSess.foreach(_.delete_!)
         deleteExtCookie()
         Failure("Extended session has expired")
       case _ => extSess

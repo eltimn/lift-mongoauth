@@ -184,10 +184,10 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
     }
 
     override def validations =
-      valUnique(S.?("base_user_err_email_duplicate")) _  ::
       valMinLen(3, S.?("base_user_err_must_at_least_characters").format(displayName, 3)) _ ::
       valMaxLen(254, S.?("base_user_err_must_at_max_characters").format(displayName, 254)) _ ::
-      super.validations
+      valUnique(S.?("base_user_err_email_duplicate")) _  ::
+        super.validations
   }
   // email address has been verified by clicking on a LoginToken link
   object verified extends BooleanField(this) {

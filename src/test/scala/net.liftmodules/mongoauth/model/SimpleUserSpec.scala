@@ -6,8 +6,8 @@ class SimpleUserSpec extends WithSessionSpec with MongoTestKit {
   val userPassword = "password"
 
   def testUser = SimpleUser.createRecord
-    .email("test@domain.com")
-    .password(userPassword, true)
+    .email("test@domain.com")  ;
+    //.password(userPassword, true)
 
   "SimpleUser" should {
 

@@ -2,9 +2,13 @@ package net.liftmodules.mongoauth
 
 import net.liftweb._
 import common._
-import http.{RedirectResponse, RedirectWithState, S, RedirectState}
+import common.Full
+import http._
+import sitemap.Loc.EarlyResponse
+import sitemap.Loc.If
 import sitemap.{Loc, Menu}
 import sitemap.Loc.{DispatchLocSnippets, EarlyResponse, If}
+import util.Props
 
 object Locs extends Locs
 trait Locs {
@@ -47,6 +51,14 @@ trait Locs {
   def HasRole(role: String) =
     If(() => userMeta.hasRole(role),
       DisplayError("You are the wrong role to access that resource."))
+
+  def HasRoleAdmin() =
+    If(() => userMeta.hasRole("admin"),
+      Props.mode match {
+        case Props.RunModes.Development =>  DisplayError("You are the wrong role to access that resource.")
+        case _ => () => NotFoundResponse()
+      }
+    )
 
   def LacksRole(role: String) =
     If(() => userMeta.lacksRole(role),
