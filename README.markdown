@@ -78,20 +78,20 @@ Example:
 
     user.permissions(List(Permission("printer", "print"), Permission("user", "edit", "123")))
 
-    assert(user.hasPermission(Permission("printer", "manage")) == false)
+    assert(User.hasPermission(Permission("printer", "manage")) == false)
 
 Role is a MongoRecord that provides a way to group a set of permissions. A user's full set of permissions is calculated using the permissions
-from any roles assigned to them and the individual permissions assigned to them. There are also LocParams that can be used to check for roles.
+from any roles assigned to them and the individual permissions assigned to them. There are also LocParams as well as the User-Meta-Singleton that can be used to check for roles.
 
 Example:
 
     val superuser = Role.createRecord.id("superuser").permissions(List(Permission.all)).save
 
-    user.roles(List(superuser))
+    user.roles(List("superuser"))
 
-    assert(user.hasRole("superuser")) == true)
-    assert(user.lacksRole("superuser")) == false)
-    assert(user.lacksRole("admin")) == true)
+    assert(User.hasRole("superuser")) == true)
+    assert(User.lacksRole("superuser")) == false)
+    assert(User.lacksRole("admin")) == true)
 
 
 # SiteMap LocParams
