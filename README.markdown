@@ -10,7 +10,7 @@ SBT 0.11
 
     resolvers += "Liftmodules repo" at "https://repository-liftmodules.forge.cloudbees.com/release"
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.4-SNAPSHOT-0.1"
+    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.4-SNAPSHOT-0.4"
 
 # Configuration
 
@@ -110,6 +110,11 @@ Examples:
 
 "Authenticated" means the user logged in by supplying their password. "Logged In" means the user was logged in by either
 an ExtSession or LoginToken, or they are Authenticated.
+
+# Localization
+
+A default localization is provided and can be found [here](https://github.com/jonoabroad/lift-mongoauth/tree/master/src/main/resources/toserve/mongoauth.resources.html). If you require another language or would prefer different text, copy the default and subtitute your values. See the [Localization](https://www.assembla.com/spaces/liftweb/wiki/Localization) page on the Liftweb wiki for more information.
+
 
 # Example Implementation
 
