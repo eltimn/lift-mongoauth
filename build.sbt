@@ -1,6 +1,6 @@
 name := "mongoauth"
 
-version := "2.4-0.3"
+version := "2.4-0.4"
 
 organization := "net.liftmodules"
 
@@ -30,3 +30,8 @@ scalacOptions ++= Seq("-deprecation", "-unchecked")
 publishTo := Some("liftmodules repository" at "https://repository-liftmodules.forge.cloudbees.com/release/")
 
 credentials += Credentials( file("/private/liftmodules/cloudbees.credentials") )
+
+
+EclipseKeys.withSource := true
+
+EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource

@@ -16,15 +16,24 @@
 
 package net.liftmodules.mongoauth
 
-import org.joda.time.{Days, Hours, ReadablePeriod}
+import org.joda.time.Days
+import org.joda.time.Hours
+import org.joda.time.ReadablePeriod
 
 import net.liftweb._
-import common._
-import http.{Factory, SessionVar, S}
-import sitemap.{LocPath, Menu}
-import util.Helpers
+import net.liftweb.common._
+import net.liftweb.http.Factory
+import net.liftweb.http.LiftRules
+import net.liftweb.http.SessionVar
+import net.liftweb.util.Helpers
+import net.liftweb.util.BundleBuilder
 
 object MongoAuth extends Factory {
+
+
+  //set default resource bundle
+  LiftRules.resourceBundleFactories.prepend( { case (_,locale) if LiftRules.loadResourceAsXml("/toserve/mongoauth.resources.html").isDefined => LiftRules.loadResourceAsXml("/toserve/mongoauth.resources.html").flatMap{BundleBuilder.convert(_,locale) }.open_!})
+
   // AuthUserMeta object
   val authUserMeta = new FactoryMaker[AuthUserMeta[_]](model.SimpleUser) {}
 

@@ -48,7 +48,7 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
     val resp = S.param("token").flatMap(LoginToken.findByStringId) match {
       case Full(at) if (at.expires.isExpired) => {
         at.delete_!
-        RedirectWithState(indexUrl, RedirectState(() => { S.error("Login token has expired") }))
+        RedirectWithState(indexUrl, RedirectState(() => { S.error(S ? "liftmodule-monogoauth.simpleUser.handleLoginToken.expiredToken") }))
       }
       case Full(at) => find(at.userId.is).map(user => {
         if (user.validate.length == 0) {
@@ -61,10 +61,10 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
         else {
           at.delete_!
           regUser(user)
-          RedirectWithState(registerUrl, RedirectState(() => { S.notice("Please complete the registration form") }))
+          RedirectWithState(registerUrl, RedirectState(() => { S.notice(S ? "liftmodule-monogoauth.simpleUser.handleLoginToken.completeRegistration") }))
         }
-      }).openOr(RedirectWithState(indexUrl, RedirectState(() => { S.error("User not found") })))
-      case _ => RedirectWithState(indexUrl, RedirectState(() => { S.warning("Login token not provided") }))
+      }).openOr(RedirectWithState(indexUrl, RedirectState(() => { S.error( S ? "liftmodule-monogoauth.simpleUser.handleLoginToken.userNotFound") })))
+      case _ => RedirectWithState(indexUrl, RedirectState(() => { S.warning(S ? "liftmodule-monogoauth.simpleUser.handleLoginToken.noToken") }))
     }
 
     Full(resp)
@@ -76,24 +76,11 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
 
     val token = LoginToken.createForUserId(user.id.is)
 
-    val msgTxt =
-      """
-        |Someone requested a link to change your password on the %s website.
-        |
-        |If you did not request this, you can safely ignore it. It will expire
-        |48 hours from the time this message was sent.
-        |
-        |Follow the link below or copy and paste it into your internet browser.
-        |
-        |%s
-        |
-        |Thanks,
-        |%s
-      """.format(siteName, token.url, sysUsername).stripMargin
+    val msgTxt = S ? ( "liftmodule-monogoauth.simpleUser.sendLoginToken.msg", siteName, token.url, sysUsername)
 
     sendMail(
       From(MongoAuth.systemFancyEmail),
-      Subject("%s Password Help".format(siteName)),
+      Subject(S ? ("liftmodule-monogoauth.simpleUser.sendLoginToken.subject",siteName)),
       To(user.fancyEmail),
       PlainMailBodyType(msgTxt)
     )
