@@ -72,3 +72,4 @@ pomExtra := (
 	 </developers>
  )
 
+credentials += Credentials( file("/private/liftmodules/cloudbees.credentials") )

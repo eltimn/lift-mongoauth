@@ -6,13 +6,9 @@ Authentication and Authorization module for Lift-MongoDB-Record.
 
 Jars are available via the liftmodules.net repo.
 
-SBT 0.11
+SBT 0.12
 
-    resolvers += "Sonatype" at "https://oss.sonatype.org/content/repositories/public/"        
-
-    resolvers += "Sonatype Snapshot" at "http://oss.sonatype.org/content/repositories/snapshots" 
-
-    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.5-M2-0.3"
+    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.5-RC1-0.4"
 
 # Configuration
 
@@ -112,6 +108,11 @@ Examples:
 
 "Authenticated" means the user logged in by supplying their password. "Logged In" means the user was logged in by either
 an ExtSession or LoginToken, or they are Authenticated.
+
+# Localization
+
+A default localization is provided and can be found [here](https://github.com/jonoabroad/lift-mongoauth/tree/master/src/main/resources/toserve/mongoauth.resources.html). If you require another language or would prefer different text, copy the default and subtitute your values. See the [Localization](https://www.assembla.com/spaces/liftweb/wiki/Localization) page on the Liftweb wiki for more information.
+
 
 # Example Implementation
 

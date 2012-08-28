@@ -163,9 +163,9 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
     }
 
     override def validations =
-      valUnique("Another user is already using that username, please enter a different one") _ ::
-      valMinLen(3, "Username must be at least 3 characters") _ ::
-      valMaxLen(32, "Username must be less than 33 characters") _ ::
+      valUnique(S ? "liftmodule-monogoauth.monogoAuthUser.username.validation.unique") _ ::
+      valMinLen(3, S ? "liftmodule-monogoauth.monogoAuthUser.username.validation.min.length") _ ::
+      valMaxLen(32, S ? "liftmodule-monogoauth.monogoAuthUser.username.validation.max.length") _ ::
       super.validations
   }
 

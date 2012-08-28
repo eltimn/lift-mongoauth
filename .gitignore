@@ -3,3 +3,8 @@ target/
 
 # sublime-text
 *.sublime-*
+/.cache
+/.classpath
+/.project
+/.settings/
+/bin/

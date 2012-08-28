@@ -25,7 +25,7 @@ trait Locs {
   def RedirectToIndexWithCookies = RedirectResponse(indexUrl, S.responseCookies:_*)
 
   protected def DisplayError(message: String) = () =>
-    RedirectWithState(indexUrl, RedirectState(() => S.error(message)))
+    RedirectWithState(indexUrl, RedirectState(() => S.error(S ? message)))
 
   // Loc guards
   val RequireAuthentication = If(
@@ -46,23 +46,23 @@ trait Locs {
 
   def HasRole(role: String) =
     If(() => userMeta.hasRole(role),
-      DisplayError("You are the wrong role to access that resource."))
+      DisplayError("liftmodule-monogoauth.locs.hasRole"))
 
   def LacksRole(role: String) =
     If(() => userMeta.lacksRole(role),
-      DisplayError("You lack the sufficient role to access that resource."))
+      DisplayError("liftmodule-monogoauth.locs.lacksRole"))
 
   def HasPermission(permission: Permission) =
     If(() => userMeta.hasPermission(permission),
-      DisplayError("Insufficient permissions to access that resource."))
+      DisplayError("liftmodule-monogoauth.locs.hasPermission"))
 
   def LacksPermission(permission: Permission) =
     If(() => userMeta.lacksPermission(permission),
-      DisplayError("Overqualified permissions to access that resource."))
+      DisplayError("liftmodule-monogoauth.locs.overQualified"))
 
   def HasAnyRoles(roles: Seq[String]) =
     If(() => userMeta.hasAnyRoles(roles),
-       DisplayError("You are the wrong role to access that resource."))
+       DisplayError("liftmodule-monogoauth.locs.wrongRole"))
 
   // Menus
   def buildLogoutMenu = Menu(Loc(
@@ -80,7 +80,7 @@ trait Locs {
 
   def buildLoginTokenMenu = Menu(Loc(
     "LoginToken", loginTokenUrl.split("/").filter(_.length > 0).toList,
-    "LoginToken", loginTokenLocParams
+    S ? "liftmodule-monogoauth.locs.loginToken", loginTokenLocParams
   ))
 
   protected def loginTokenLocParams = RequireNotLoggedIn ::

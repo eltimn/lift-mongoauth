@@ -2,14 +2,10 @@ package net.liftmodules.mongoauth
 package model
 
 import field.PermissionListField
-
 import net.liftweb._
-import mongodb.record._
-import mongodb.record.field._
-import record.field.StringField
-
-import org.bson.types.ObjectId
-
+import net.liftweb.mongodb.record._
+import net.liftweb.record.field.StringField
+import net.liftweb.http.S
 /*
  * Simple record for storing roles. Role name is the PK.
  */
@@ -18,7 +14,7 @@ class Role private () extends MongoRecord[Role] {
 
   object id extends StringField(this, 32) {
     override def name = "_id"
-    override def displayName = "Name"
+    override def displayName = S ? "liftmodule-monogoauth.role.id.displayName"
   }
   object permissions extends PermissionListField(this)
 
