@@ -29,14 +29,14 @@ class LoginToken extends MongoRecord[LoginToken] with ObjectIdPk[LoginToken] {
 object LoginToken extends LoginToken with MongoMetaRecord[LoginToken] {
   import mongodb.BsonDSL._
 
-  override def collectionName = "user.logintokens"
+  final override def collectionName = "user.logintokens"
 
   ensureIndex((userId.name -> 1))
 
   private lazy val loginTokenUrl = MongoAuth.loginTokenUrl.vend
   private lazy val loginTokenExpires = MongoAuth.loginTokenExpires.vend
 
-  def url(inst: LoginToken): String = "%s%s?token=%s".format(S.hostAndPath, loginTokenUrl, inst.id.toString)
+  def url(inst: LoginToken): String = "%s%s?token=%s".format(S.hostAndPath, loginTokenUrl, inst.id)
 
   def createForUserId(uid: ObjectId): LoginToken = {
     createRecord.userId(uid).save

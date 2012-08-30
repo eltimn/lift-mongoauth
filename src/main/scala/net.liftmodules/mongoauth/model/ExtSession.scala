@@ -27,7 +27,7 @@ class ExtSession extends MongoRecord[ExtSession] with UUIDPk[ExtSession] {
 object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Loggable {
   import mongodb.BsonDSL._
 
-  override def collectionName = "user.extsessions"
+  final override def collectionName = "user.extsessions"
 
   ensureIndex((userId.name -> 1))
 
