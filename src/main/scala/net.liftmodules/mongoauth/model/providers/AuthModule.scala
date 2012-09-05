@@ -7,9 +7,8 @@ import net.liftweb.common.{Full, Logger, Box, Empty}
 
 /**
  * Heirko project
- * User: Alexandre
- * Date: 20/04/12
- * Time: 13:28
+ * <creator>Alexandre Richonnier</creator>
+ * <creationDate>20/04/12 13:28</creationDate>
  */
 
 object AuthModuleType extends Enumeration {
