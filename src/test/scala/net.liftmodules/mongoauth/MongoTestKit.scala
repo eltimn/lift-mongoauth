@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>02/10/12 17:58</lastUpdate>
+ * <lastUpdate>03/10/12 01:57</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -122,6 +122,13 @@ trait MongoTestKit extends BeforeAndAfterAll {
 
   }
 }
+
+
+class IntegrationTestCleanup {
+  MongoTestDb.afterAllSuite()
+}
+
+
 //
 ///**
 // * Creates a Mongo instance named after the class.
