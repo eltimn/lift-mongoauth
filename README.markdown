@@ -70,7 +70,7 @@ influenced by [Apache Shiro's](http://shiro.apache.org/) WildcardPermission.
 Please see the [JavaDoc for WildcardPermission](http://shiro.apache.org/static/current/apidocs/org/apache/shiro/authz/permission/WildcardPermission.html)
 for detailed information.
 
-See [PermissionSuite](https://github.com/eltimn/lift-mongoauth/blob/master/src/test/scala/net.liftmodules/mongoauth/PermissionSuite.scala) for examples.
+See [PermissionSpec](https://github.com/eltimn/lift-mongoauth/blob/master/src/test/scala/net.liftmodules/mongoauth/PermissionSpec.scala) for examples.
 
 PermissionListField provides a way to store permissions for a user. It stores them as a list of strings.
 
