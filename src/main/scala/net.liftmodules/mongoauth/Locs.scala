@@ -68,7 +68,7 @@ trait Locs {
   def buildLogoutMenu = Menu(Loc(
     "Logout",
     logoutUrl.split("/").filter(_.length > 0).toList,
-    S.??("logout"), logoutLocParams
+    S.?("logout"), logoutLocParams
   ))
 
   protected def logoutLocParams = RequireLoggedIn ::
