@@ -6,7 +6,7 @@ organization := "net.liftmodules"
 
 scalaVersion := "2.9.1"
 
-crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.8.1")
+crossScalaVersions := Seq("2.9.1")
 
 libraryDependencies <++= (scalaVersion) { scalaVersion =>
   val scalatestVersion = scalaVersion match {
@@ -14,10 +14,10 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
     case "2.8.1" | "2.8.2" => "1.5.1"
     case _       => "1.6.1"
   }
-  val liftVersion = "2.4"
+  val liftVersion = "2.5-M1"
   Seq(
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
-    "ch.qos.logback" % "logback-classic" % "1.0.3" % "provided",
+    "ch.qos.logback" % "logback-classic" % "1.0.6" % "provided",
     "org.scalatest" %% "scalatest" % scalatestVersion % "test",
     "org.mindrot" % "jbcrypt" % "0.3m" % "compile"
   )
