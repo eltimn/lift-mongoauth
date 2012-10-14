@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>07/09/12 15:13</lastUpdate>
+ * <lastUpdate>14/10/12 22:21</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -41,7 +41,7 @@ import org.bson.types.ObjectId
 /**
   * This is a token for automatically logging a user in
   */
-class LoginToken extends MongoRecord[LoginToken] with ObjectIdPk[LoginToken] {
+class LoginToken extends MongoRecord[LoginToken] with StringPk[LoginToken] {
   def meta = LoginToken
 
   object userId extends ObjectIdField(this)
@@ -70,7 +70,21 @@ object LoginToken extends LoginToken with MongoMetaRecord[LoginToken] {
     delete(userId.name, uid)
   }
 
+  def isValid(s: String, len: Int = 32): Boolean = {
+    if (s == null) return false
+    val len: Int = s.length
+    if (s.length != len) return false
+
+    s.foreach(c => {
+      if (!(c >= '0' && c <= '9'))
+        if (!(c >= 'a' && c <= 'f'))
+          if (!(c >= 'A' && c <= 'F'))
+            return false
+    })
+    true
+  }
+
   def findByStringId(in: String): Box[LoginToken] =
-    if (ObjectId.isValid(in)) find(new ObjectId(in))
-    else Failure("Invalid ObjectId: "+in)
+    if (isValid(in)) findByStringId(in)
+    else Failure("Invalid Token Id: "+in)
 }
