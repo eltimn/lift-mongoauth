@@ -8,9 +8,11 @@ Jars are available via the liftmodules.net repo.
 
 SBT 0.11
 
-    resolvers += "Liftmodules repo" at "https://repository-liftmodules.forge.cloudbees.com/release"
+    resolvers += "Sonatype" at "https://oss.sonatype.org/content/repositories/public/"        
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.4-SNAPSHOT-0.1"
+    resolvers += "Sonatype Snapshot" at "http://oss.sonatype.org/content/repositories/snapshots" 
+
+    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.5-M2-0.3"
 
 # Configuration
 

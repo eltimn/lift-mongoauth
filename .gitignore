@@ -1,6 +1,5 @@
 # sbt
 target/
-project/
 
 # sublime-text
 *.sublime-*
