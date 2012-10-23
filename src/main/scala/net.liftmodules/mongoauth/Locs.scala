@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>06/10/12 03:26</lastUpdate>
+ * <lastUpdate>23/10/12 23:59</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -27,16 +27,17 @@ package net.liftmodules.mongoauth
 import net.liftweb._
 import common._
 import common.Full
+import common.Full
 import http._
+import sitemap.Loc._
 import sitemap.Loc.EarlyResponse
 import sitemap.Loc.If
 import sitemap.{Loc, Menu}
-import sitemap.Loc.{DispatchLocSnippets, EarlyResponse, If}
 import util.Props
 
 object Locs extends Locs
 trait Locs {
-  private lazy val userMeta = MongoAuth.authUserMeta.vend
+  lazy val userMeta = MongoAuth.authUserMeta.vend
 
   private lazy val indexUrl = MongoAuth.indexUrl.vend
   private lazy val loginUrl = MongoAuth.loginUrl.vend
@@ -67,6 +68,16 @@ trait Locs {
   val RequireLoggedIn = If(
     () => userMeta.isLoggedIn,
     () => RedirectToLoginWithReferrer)
+
+  /**
+   * Always show in menu but redirect if false
+   */
+  val TestAccessLoggedIn = EarlyResponse(
+    () => {
+      if (userMeta.isLoggedIn)
+        Empty
+    else Full(RedirectToLoginWithReferrer)
+    })
 
   val RequireNotLoggedIn = If(
     () => !userMeta.isLoggedIn,
