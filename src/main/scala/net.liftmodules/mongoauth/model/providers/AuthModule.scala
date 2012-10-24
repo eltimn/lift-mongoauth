@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>06/10/12 05:28</lastUpdate>
+ * <lastUpdate>24/10/12 14:47</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -37,7 +37,7 @@ import net.liftweb.common.{Full, Logger, Box, Empty}
 
 object AuthModuleType extends Enumeration {
   type AuthModuleType = Value
-  val OpenID, UserPwd, OmniAuth = Value
+  val OpenID, UserPwd, OmniAuth, Token = Value
 }
 
 trait AuthModule extends Logger  {
