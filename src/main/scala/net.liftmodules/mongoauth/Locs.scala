@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>23/10/12 23:59</lastUpdate>
+ * <lastUpdate>25/10/12 19:29</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -34,6 +34,7 @@ import sitemap.Loc.EarlyResponse
 import sitemap.Loc.If
 import sitemap.{Loc, Menu}
 import util.Props
+import xml.NodeSeq
 
 object Locs extends Locs
 trait Locs {
@@ -69,15 +70,7 @@ trait Locs {
     () => userMeta.isLoggedIn,
     () => RedirectToLoginWithReferrer)
 
-  /**
-   * Always show in menu but redirect if false
-   */
-  val TestAccessLoggedIn = EarlyResponse(
-    () => {
-      if (userMeta.isLoggedIn)
-        Empty
-    else Full(RedirectToLoginWithReferrer)
-    })
+
 
   val RequireNotLoggedIn = If(
     () => !userMeta.isLoggedIn,
