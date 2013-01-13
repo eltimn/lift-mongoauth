@@ -102,7 +102,7 @@ object AuthUtil {
         case x => Full(x)
       }
     } catch {
-      case e => Failure(e.getMessage, Full(e), Empty)
+      case (e: Throwable) => Failure(e.getMessage, Full(e), Empty)
     }
   }
 
