@@ -6,9 +6,9 @@ version <<= liftVersion apply { _ + "-" + "0.3-SNAPSHOT" }
 
 organization := "net.liftmodules"
 
-scalaVersion := "2.9.1"
+scalaVersion := "2.10.0"
 
-crossScalaVersions := Seq("2.9.2", "2.9.1-1", "2.9.1")
+crossScalaVersions := Seq("2.9.2", "2.9.1-1", "2.9.1", "2.10.0")
 
 resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public"
 
@@ -20,12 +20,17 @@ libraryDependencies <++= (liftVersion) { liftVersion =>
   Seq(
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
     "ch.qos.logback" % "logback-classic" % "1.0.3" % "provided",
-    "org.scalatest" %% "scalatest" % "1.8" % "test",
+    "org.scalatest" %% "scalatest" % "1.9.1" % "test",
     "org.mindrot" % "jbcrypt" % "0.3m" % "compile"
   )
 }
 
-scalacOptions ++= Seq("-deprecation", "-unchecked")
+scalacOptions <<= scalaVersion map { sv: String =>
+  if (sv.startsWith("2.10."))
+    Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps")
+  else
+    Seq("-deprecation", "-unchecked")
+}
 
 libraryDependencies <++= liftVersion { v =>
   "net.liftweb" %% "lift-webkit" % v % "compile->default" ::
