@@ -32,7 +32,13 @@ object MongoAuth extends Factory {
 
 
   //set default resource bundle
-  LiftRules.resourceBundleFactories.prepend( { case (_,locale) if LiftRules.loadResourceAsXml("/toserve/mongoauth.resources.html").isDefined => LiftRules.loadResourceAsXml("/toserve/mongoauth.resources.html").flatMap{BundleBuilder.convert(_,locale) }.open_!})
+  LiftRules.resourceBundleFactories.prepend( {
+    case (_,locale) if LiftRules.loadResourceAsXml("/toserve/mongoauth.resources.html").isDefined =>
+      LiftRules
+        .loadResourceAsXml("/toserve/mongoauth.resources.html")
+        .flatMap { BundleBuilder.convert(_,locale) }
+        .openOrThrowException("isDefined is called in the guard")
+  })
 
   // AuthUserMeta object
   val authUserMeta = new FactoryMaker[AuthUserMeta[_]](model.SimpleUser) {}
