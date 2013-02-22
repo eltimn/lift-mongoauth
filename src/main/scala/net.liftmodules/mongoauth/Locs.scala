@@ -1,6 +1,6 @@
 /*******************************************************************************
  * <copyright file="Locs.scala">
- * Copyright (c) 2011 - 2012. Heirko
+ * Copyright (c) 2011 - 2013. Heirko
  * All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>25/10/12 19:29</lastUpdate>
+ * <lastUpdate>22/02/13 15:06</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -126,4 +126,13 @@ trait Locs {
   protected def loginTokenLocParams = RequireNotLoggedIn ::
     EarlyResponse(() => userMeta.handleLoginToken) :: Nil
 
+}
+
+
+object RestLoc {
+  lazy val userMeta = MongoAuth.authUserMeta.vend
+
+  def RequireLoggedIn : Boolean = {
+    userMeta.isLoggedIn
+  }
 }
