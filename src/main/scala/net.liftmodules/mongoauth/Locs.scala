@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>22/02/13 15:06</lastUpdate>
+ * <lastUpdate>23/02/13 13:24</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -129,10 +129,4 @@ trait Locs {
 }
 
 
-object RestLoc {
-  lazy val userMeta = MongoAuth.authUserMeta.vend
 
-  def RequireLoggedIn : Boolean = {
-    userMeta.isLoggedIn
-  }
-}
