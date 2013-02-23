@@ -1,8 +1,8 @@
 name := "mongoauth"
 
-liftVersion <<= liftVersion ?? "2.5-SNAPSHOT"
+liftVersion <<= liftVersion ?? "2.5-RC1"
 
-version <<= liftVersion apply { _ + "-" + "0.4-SNAPSHOT" }
+version <<= liftVersion apply { _ + "-" + "0.4" }
 
 organization := "net.liftmodules"
 
