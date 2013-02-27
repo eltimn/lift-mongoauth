@@ -9,21 +9,21 @@ scalaVersion := "2.9.2"
 crossScalaVersions := Seq("2.9.2")
 
 libraryDependencies <++= (scalaVersion) { scalaVersion =>
-  val scalatestVersion = scalaVersion match {
-    case "2.8.0" => "1.3.1.RC2"
-    case "2.8.1" | "2.8.2" => "1.5.1"
-    case _       => "1.6.1"
-  }
   val liftVersion = "2.5-RC1"
   Seq(
     "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
     "ch.qos.logback" % "logback-classic" % "1.0.6" % "provided",
-    "org.scalatest" %% "scalatest" % scalatestVersion % "test",
+    "org.scalatest" %% "scalatest" % "1.9.1" % "test",
     "org.mindrot" % "jbcrypt" % "0.3m" % "compile"
   )
 }
 
-scalacOptions ++= Seq("-deprecation", "-unchecked")
+scalacOptions <<= scalaVersion map { sv: String =>
+  if (sv.startsWith("2.10."))
+    Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps")
+  else
+    Seq("-deprecation", "-unchecked")
+}
 
 // To publish to the Cloudbees repos:
 

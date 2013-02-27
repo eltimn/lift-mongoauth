@@ -1,3 +1,27 @@
+/*******************************************************************************
+ * <copyright file="AuthUser.scala">
+ * Copyright (c) 2011 - 2013. Heirko
+ * All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Heirko and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Heirko
+ * and its suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Heirko.
+ *
+ * Heirko tout droit réservé -- Tout information contenue ici est la propriété
+ * de la société Heirko.
+ *
+ * </copyright>
+ *
+ * <author>Alexandre Richonnier</author>
+ * <lastUpdate>27/02/13 23:27</lastUpdate>
+ ******************************************************************************/
+
 package net.liftmodules.mongoauth
 
 import field._
@@ -98,18 +122,28 @@ trait UserLifeCycle[UserType <: AuthUser] {
   }
   def currentUser: Box[UserType] = curUser.is
 
+  /**
+   * Be careful throw an exception if not set
+   * @return
+   */
+  def currentUser_! : UserType = currentUser.openOrThrowException("UserSessionMustBeSet")
+
+
   def isLoggedIn: Boolean = currentUserId.isDefined
   def isAuthenticated: Boolean = curUserIsAuthenticated.is
 
-  def hasRole(role: String): Boolean = currentUser
-    .map(_.authRoles.exists(_ == role))
+  def hasRole(user : UserType, role: String): Boolean = user.authRoles.exists(_ == role)
+
+  def hasPermission(user : UserType, permission: Permission): Boolean =
+          permission.implies(user.authPermissions)
+
+  def hasRole(role: String): Boolean =
+    currentUser.map(hasRole(_, role))
     .openOr(false)
 
-  def hasPermission(permission: Permission): Boolean = {
-    currentUser
-      .map(u => permission.implies(u.authPermissions))
+  def hasPermission(permission: Permission): Boolean =
+    currentUser.map(hasPermission(_, permission))
       .openOr(false)
-  }
 
   def logUserIn(who: UserType, isAuthed: Boolean = false, isRemember: Boolean = false) {
     curUserId.remove()
