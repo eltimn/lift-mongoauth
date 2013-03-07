@@ -1,6 +1,6 @@
 /*******************************************************************************
  * <copyright file="ExtSession.scala">
- * Copyright (c) 2011 - 2012. Heirko
+ * Copyright (c) 2011 - 2013. Heirko
  * All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>07/09/12 15:13</lastUpdate>
+ * <lastUpdate>07/03/13 21:58</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -27,17 +27,16 @@ package model
 
 import field._
 
-import java.util.{Locale, UUID}
+import java.util.UUID
 
-import org.joda.time.DateTime
 
 import net.liftweb._
 import common._
-import http.{Req, S}
+import http.S
 import http.provider.HTTPCookie
 import mongodb.record._
 import mongodb.record.field._
-import util.{Helpers, LoanWrapper}
+import util.Helpers
 
 import org.bson.types.ObjectId
 
@@ -59,6 +58,9 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
   private lazy val whenExpires = MongoAuth.extSessionExpires.vend
   private lazy val cookieName = MongoAuth.extSessionCookieName.vend
   private lazy val cookiePath = MongoAuth.extSessionCookiePath.vend
+  private lazy val cookieDomain = MongoAuth.extSessionCookieDomain.vend
+
+
 
   // create an extSession
   def createExtSession(uid: ObjectId) {
@@ -67,6 +69,7 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
       .userId(uid)
       .save
     val cookie = HTTPCookie(cookieName, inst.id.value.toString)
+      .setDomain(cookieDomain)
       .setMaxAge(whenExpires.toPeriod.toStandardSeconds.getSeconds)
       .setPath(cookiePath)
     S.addCookie(cookie)

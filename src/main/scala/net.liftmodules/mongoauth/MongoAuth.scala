@@ -19,7 +19,7 @@
  * </copyright>
  *
  * <author>Alexandre Richonnier</author>
- * <lastUpdate>27/02/13 23:27</lastUpdate>
+ * <lastUpdate>07/03/13 21:58</lastUpdate>
  ******************************************************************************/
 
 package net.liftmodules.mongoauth
@@ -58,6 +58,7 @@ object MongoAuth extends Factory {
   val extSessionExpires = new FactoryMaker[ReadablePeriod](Days.days(90)) {}
   val extSessionCookieName = new FactoryMaker[String]("EXTSESSID") {}
   val extSessionCookiePath = new FactoryMaker[String]("/") {}
+  val extSessionCookieDomain = new FactoryMaker[String]("") {}
 
   // Permission
   val permissionWilcardToken = new FactoryMaker[String]("*") {}
