@@ -3,6 +3,7 @@ target/
 
 # sublime-text
 *.sublime-*
+*/rebel.xml
 /.cache
 /.classpath
 /.project
