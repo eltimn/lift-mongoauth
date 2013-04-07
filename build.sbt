@@ -1,10 +1,14 @@
 name := "mongoauth"
 
+organization := "net.liftmodules"
+
+version := "0.5-SNAPSHOT"
+
 liftVersion <<= liftVersion ?? "2.5-SNAPSHOT"
 
-version <<= liftVersion apply { _ + "-" + "0.5-SNAPSHOT" }
+liftEdition <<= liftVersion apply { _.substring(0,3) }
 
-organization := "net.liftmodules"
+name <<= (name, liftEdition) { (n, e) =>  n + "_" + e }
 
 scalaVersion := "2.10.0"
 
@@ -18,8 +22,8 @@ resolvers += "Sonatype Snapshot" at "http://oss.sonatype.org/content/repositorie
 
 libraryDependencies <++= (liftVersion) { liftVersion =>
   Seq(
-    "net.liftweb" %% "lift-mongodb-record" % liftVersion % "compile",
-    "net.liftweb" %% "lift-webkit" % liftVersion % "compile",
+    "net.liftweb" %% "lift-mongodb-record" % liftVersion % "provided",
+    "net.liftweb" %% "lift-webkit" % liftVersion % "provided",
     "ch.qos.logback" % "logback-classic" % "1.0.3" % "provided",
     "org.scalatest" %% "scalatest" % "1.9.1" % "test",
     "org.mindrot" % "jbcrypt" % "0.3m" % "compile"

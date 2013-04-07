@@ -8,7 +8,14 @@ Jars are available via the liftmodules.net repo.
 
 SBT 0.12
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth" % "2.5-RC1-0.4"
+For *Lift 2.5.x* (Scala 2.9 and 2.10):
+
+    libraryDependencies += "net.liftmodules" %% "mongoauth_2.5" % "0.4"
+
+For *Lift 3.0.x* (Scala 2.10):
+
+    libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "0.5-SNAPSHOT"
+
 
 # Configuration
 
