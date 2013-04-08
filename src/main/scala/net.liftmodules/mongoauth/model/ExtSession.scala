@@ -1,4 +1,5 @@
 
+
 package net.liftmodules.mongoauth
 package model
 
