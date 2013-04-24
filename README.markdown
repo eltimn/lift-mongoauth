@@ -93,6 +93,22 @@ Example:
     assert(user.lacksRole("superuser")) == false)
     assert(user.lacksRole("admin")) == true)
 
+#XSRFToken 
+
+To prevent XSRF (CSRF) attack, add a per session cookie, and send content in http header. 
+
+Compatible with AngularJS see [$http documentation XSRF](http://docs.angularjs.org/api/ng.$http)
+
+To use with JQuery ajax, use XSRFToken.jQueryAjaxTokenJs snippet like:
+
+    LiftRules.snippets.append {
+        case List("jq-xsrf-token")      => XSRFToken.jQueryAjaxTokenJs
+    }
+
+In your html:
+
+    <div data-lift="jq-xsrf-token"></div>
+
 
 # SiteMap LocParams
 
