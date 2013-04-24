@@ -1,6 +1,6 @@
 package net.liftmodules.mongoauth.model
 
- import net.liftweb.common._
+import net.liftweb.common._
 import net.liftweb.http._
 import js.JE.JsRaw
 import js.JsCmds.{Run, Script}
