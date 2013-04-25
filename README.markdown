@@ -109,6 +109,10 @@ In your html:
 
     <div data-lift="jq-xsrf-token"></div>
 
+In you web service:
+
+    case "xxxxxx" :: Nil JsonPost _ if LoggedIn && XSRFToken.isValidReq => ...
+
 
 # SiteMap LocParams
 
