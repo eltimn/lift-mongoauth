@@ -14,7 +14,7 @@ For *Lift 2.5.x* (Scala 2.9 and 2.10):
 
 For *Lift 3.0.x* (Scala 2.10):
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "0.5-SNAPSHOT"
+    libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "0.4"
 
 
 # Configuration
