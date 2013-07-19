@@ -9,7 +9,7 @@ object BuildSettings {
   val basicSettings = Defaults.defaultSettings ++ Seq(
     name := "mongoauth",
     organization := "net.liftmodules",
-    version := "0.5-SNAPSHOT",
+    version := "0.5",
     liftVersion <<= liftVersion ?? "2.5",
     liftEdition <<= liftVersion apply { _.substring(0,3) },
     name <<= (name, liftEdition) { (n, e) =>  n + "_" + e },

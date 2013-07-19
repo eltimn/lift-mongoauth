@@ -35,16 +35,13 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
   private lazy val whenExpires = MongoAuth.extSessionExpires.vend
   private lazy val cookieName = MongoAuth.extSessionCookieName.vend
   private lazy val cookiePath = MongoAuth.extSessionCookiePath.vend
+  private lazy val cookieDomain = MongoAuth.extSessionCookieDomain.vend
 
   // create an extSession
   def createExtSession(uid: ObjectId) {
     deleteExtCookie() // make sure existing cookie is removed
-    val inst = createRecord
-      .userId(uid)
-      .save
-    val cookie = HTTPCookie(cookieName, inst.id.value.toString)
-      .setMaxAge(whenExpires.toPeriod.toStandardSeconds.getSeconds)
-      .setPath(cookiePath)
+    val inst = createRecord.userId(uid).save
+    val cookie = new HTTPCookie(cookieName, Full(inst.id.value.toString), cookieDomain, Full(cookiePath), Full(whenExpires.toPeriod.toStandardSeconds.getSeconds), Empty, Empty)
     S.addCookie(cookie)
   }
 
@@ -56,15 +53,17 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
   // delete the ext cookie
   def deleteExtCookie() {
     for (cook <- S.findCookie(cookieName)) {
-      S.deleteCookie(cookieName)
-      logger.debug("S.deleteCookie called.")
+      // need to set a new cookie with expires now.
+      val cookie = new HTTPCookie(cookieName, Empty, cookieDomain, Full(cookiePath), Full(0), Empty, Empty)
+      S.addCookie(cookie)
+      logger.debug("deleteCookie called")
       for {
         cv <- cook.value
         uuid <- Helpers.tryo(UUID.fromString(cv))
         extSess <- find(uuid)
       } {
         extSess.delete_!
-        logger.debug("ExtSession Record deleted.")
+        logger.debug("ExtSession Record deleted")
       }
     }
   }

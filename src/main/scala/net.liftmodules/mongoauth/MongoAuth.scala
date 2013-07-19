@@ -65,6 +65,7 @@ object MongoAuth extends Factory {
   val extSessionExpires = new FactoryMaker[ReadablePeriod](Days.days(90)) {}
   val extSessionCookieName = new FactoryMaker[String]("EXTSESSID") {}
   val extSessionCookiePath = new FactoryMaker[String]("/") {}
+  val extSessionCookieDomain = new FactoryMaker[Box[String]](Empty) {}
 
   // Permission
   val permissionWilcardToken = new FactoryMaker[String]("*") {}
