@@ -27,5 +27,5 @@ object Role extends Role with MongoMetaRecord[Role] {
   override def collectionName = "user.roles"
 
   def findOrCreate(in: String): Role = find(in).openOr(createRecord.id(in))
-  def findOrCreateAndSave(in: String): Role = findOrCreate(in).save
+  def findOrCreateAndSave(in: String): Role = findOrCreate(in).save()
 }

@@ -39,7 +39,7 @@ object LoginToken extends LoginToken with MongoMetaRecord[LoginToken] {
   def url(inst: LoginToken): String = "%s%s?token=%s".format(S.hostAndPath, loginTokenUrl, inst.id.toString)
 
   def createForUserId(uid: ObjectId): LoginToken = {
-    createRecord.userId(uid).save
+    createRecord.userId(uid).save()
   }
 
   def deleteAllByUserId(uid: ObjectId) {

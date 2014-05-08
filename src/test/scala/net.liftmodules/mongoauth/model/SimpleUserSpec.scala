@@ -17,7 +17,7 @@ class SimpleUserSpec extends WithSessionSpec with MongoTestKit {
       val perms = List(printer, userEntity)
       val user = testUser
         .permissions(perms)
-        .save
+        .save()
       val userFromDb = SimpleUser.find(user.id.is)
       userFromDb should be ('defined)
       userFromDb foreach { u =>
