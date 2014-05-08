@@ -53,7 +53,7 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
       case Full(at) => find(at.userId.is).map(user => {
         if (user.validate.length == 0) {
           user.verified(true)
-          user.save
+          user.save()
           logUserIn(user)
           at.delete_!
           RedirectResponse(loginTokenAfterUrl)
