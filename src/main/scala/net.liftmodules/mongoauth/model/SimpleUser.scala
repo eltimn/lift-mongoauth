@@ -50,10 +50,10 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
         at.delete_!
         RedirectWithState(indexUrl, RedirectState(() => { S.error(S ? "liftmodule-monogoauth.simpleUser.handleLoginToken.expiredToken") }))
       }
-      case Full(at) => find(at.userId.is).map(user => {
+      case Full(at) => find(at.userId.get).map(user => {
         if (user.validate.length == 0) {
           user.verified(true)
-          user.save
+          user.save(false)
           logUserIn(user)
           at.delete_!
           RedirectResponse(loginTokenAfterUrl)
@@ -74,16 +74,17 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
   def sendLoginToken(user: SimpleUser): Unit = {
     import net.liftweb.util.Mailer._
 
-    val token = LoginToken.createForUserId(user.id.is)
+    LoginToken.createForUserIdBox(user.id.get).foreach { token =>
 
-    val msgTxt = S ? ( "liftmodule-monogoauth.simpleUser.sendLoginToken.msg", siteName, token.url, sysUsername)
+      val msgTxt = S ? ( "liftmodule-monogoauth.simpleUser.sendLoginToken.msg", siteName, token.url, sysUsername)
 
-    sendMail(
-      From(MongoAuth.systemFancyEmail),
-      Subject(S ? ("liftmodule-monogoauth.simpleUser.sendLoginToken.subject",siteName)),
-      To(user.fancyEmail),
-      PlainMailBodyType(msgTxt)
-    )
+      sendMail(
+        From(MongoAuth.systemFancyEmail),
+        Subject(S ? ("liftmodule-monogoauth.simpleUser.sendLoginToken.subject",siteName)),
+        To(user.fancyEmail),
+        PlainMailBodyType(msgTxt)
+      )
+    }
   }
 
   /*
@@ -94,7 +95,7 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
       logger.debug("ExtSession currentUserId: "+currentUserId.toString)
       if (currentUserId.isEmpty) {
         ExtSession.handleExtSession match {
-          case Full(es) => find(es.userId.is).foreach { user => logUserIn(user, false) }
+          case Full(es) => find(es.userId.get).foreach { user => logUserIn(user, false) }
           case Failure(msg, _, _) => logger.warn("Error logging user in with ExtSession: %s".format(msg))
           case Empty => logger.warn("Unknown error logging user in with ExtSession: Empty")
         }

@@ -11,6 +11,7 @@ import http._
 import mongodb.record._
 import mongodb.record.field._
 import record.MandatoryTypedField
+import util.Helpers.tryo
 
 import org.bson.types.ObjectId
 
@@ -38,11 +39,21 @@ object LoginToken extends LoginToken with MongoMetaRecord[LoginToken] {
 
   def url(inst: LoginToken): String = "%s%s?token=%s".format(S.hostAndPath, loginTokenUrl, inst.id.toString)
 
+  @deprecated("use createForUserIdBox instead", "0.6")
   def createForUserId(uid: ObjectId): LoginToken = {
-    createRecord.userId(uid).save
+    createRecord.userId(uid).save(false)
   }
 
-  def deleteAllByUserId(uid: ObjectId) {
+  def createForUserIdBox(uid: ObjectId): Box[LoginToken] = {
+    createRecord.userId(uid).saveBox
+  }
+
+  @deprecated("use deleteAllByUserIdBox instead", "0.6")
+  def deleteAllByUserId(uid: ObjectId): Unit = {
+    delete(userId.name, uid)
+  }
+
+  def deleteAllByUserIdBox(uid: ObjectId): Box[Unit] = tryo {
     delete(userId.name, uid)
   }
 

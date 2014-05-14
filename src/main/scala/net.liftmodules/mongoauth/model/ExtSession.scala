@@ -13,7 +13,8 @@ import http.{Req, S}
 import http.provider.HTTPCookie
 import mongodb.record._
 import mongodb.record.field._
-import util.{Helpers, LoanWrapper}
+import util.LoanWrapper
+import util.Helpers.tryo
 
 import org.bson.types.ObjectId
 
@@ -38,20 +39,45 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
   private lazy val cookieDomain = MongoAuth.extSessionCookieDomain.vend
 
   // create an extSession
-  def createExtSession(uid: ObjectId) {
+  @deprecated("use createExtSessionBox instead", "0.6")
+  def createExtSession(uid: ObjectId): Unit = {
     deleteExtCookie() // make sure existing cookie is removed
-    val inst = createRecord.userId(uid).save
+    val inst = createRecord.userId(uid).save(false)
     val cookie = new HTTPCookie(cookieName, Full(inst.id.value.toString), cookieDomain, Full(cookiePath), Full(whenExpires.toPeriod.toStandardSeconds.getSeconds), Empty, Empty)
     S.addCookie(cookie)
   }
 
-  def createExtSession(uid: String) {
+  def createExtSessionBox(uid: ObjectId): Box[Unit] = {
+    deleteExtCookie() // make sure existing cookie is removed
+    createRecord.userId(uid).saveBox.map { inst =>
+      val cookie = new HTTPCookie(
+        cookieName,
+        Full(inst.id.value.toString),
+        cookieDomain,
+        Full(cookiePath),
+        Full(whenExpires.toPeriod.toStandardSeconds.getSeconds),
+        Empty,
+        Empty
+      )
+      S.addCookie(cookie)
+    }
+  }
+
+  @deprecated("use createExtSessionBox instead", "0.6")
+  def createExtSession(uid: String): Unit = {
     if (ObjectId.isValid(uid))
       createExtSession(new ObjectId(uid))
   }
 
+  def createExtSessionBox(uid: String): Box[Unit] = {
+    if (ObjectId.isValid(uid))
+      createExtSessionBox(new ObjectId(uid))
+    else
+      Failure("Invalid ObjectId")
+  }
+
   // delete the ext cookie
-  def deleteExtCookie() {
+  def deleteExtCookie(): Unit = {
     for (cook <- S.findCookie(cookieName)) {
       // need to set a new cookie with expires now.
       val cookie = new HTTPCookie(cookieName, Empty, cookieDomain, Full(cookiePath), Full(0), Empty, Empty)
@@ -59,10 +85,10 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
       logger.debug("deleteCookie called")
       for {
         cv <- cook.value
-        uuid <- Helpers.tryo(UUID.fromString(cv))
+        uuid <- tryo(UUID.fromString(cv))
         extSess <- find(uuid)
+        _ <- extSess.deleteBox_!
       } {
-        extSess.delete_!
         logger.debug("ExtSession Record deleted")
       }
     }
@@ -72,7 +98,7 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
     val extSess = for {
       cookie <- S.findCookie(cookieName) // empty means we should ignore it
       cookieValue <- cookie.value ?~ "Cookie value is empty"
-      uuid <- Helpers.tryo(UUID.fromString(cookieValue)) ?~ "Invalid UUID"
+      uuid <- tryo(UUID.fromString(cookieValue)) ?~ "Invalid UUID"
       es <- find(uuid) ?~ "ExtSession not found: %s".format(uuid.toString)
     } yield es
 

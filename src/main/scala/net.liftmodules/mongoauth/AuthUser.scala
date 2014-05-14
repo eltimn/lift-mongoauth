@@ -86,7 +86,7 @@ trait UserLifeCycle[UserType <: AuthUser] {
 
   // current userId stored in the session.
   private object curUserId extends SessionVar[Box[String]](Empty)
-  def currentUserId: Box[String] = curUserId.is
+  def currentUserId: Box[String] = curUserId.get
 
   private object curUserIsAuthenticated extends SessionVar[Boolean](false)
 
@@ -95,7 +95,7 @@ trait UserLifeCycle[UserType <: AuthUser] {
   with CleanRequestVarOnSessionTransition {
     override lazy val __nameSalt = Helpers.nextFuncName
   }
-  def currentUser: Box[UserType] = curUser.is
+  def currentUser: Box[UserType] = curUser.get
 
   def isLoggedIn: Boolean = currentUserId.isDefined
   def isAuthenticated: Boolean = curUserIsAuthenticated.is
@@ -110,7 +110,7 @@ trait UserLifeCycle[UserType <: AuthUser] {
       .openOr(false)
   }
 
-  def logUserIn(who: UserType, isAuthed: Boolean = false, isRemember: Boolean = false) {
+  def logUserIn(who: UserType, isAuthed: Boolean = false, isRemember: Boolean = false): Unit = {
     curUserId.remove()
     curUserIsAuthenticated.remove()
     curUser.remove()
@@ -119,7 +119,7 @@ trait UserLifeCycle[UserType <: AuthUser] {
     curUser(Full(who))
     onLogIn.foreach(_(who))
     if (isRemember)
-      ExtSession.createExtSession(who.userIdAsString)
+      ExtSession.createExtSessionBox(who.userIdAsString)
   }
 
   def logUserOut() {
@@ -155,7 +155,7 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
 
     private def valUnique(msg: => String)(value: String): List[FieldError] = {
       if (value.length > 0)
-        meta.findAll(name, value).filterNot(_.id.is == owner.id.is).map(u =>
+        meta.findAll(name, value).filterNot(_.id.get == owner.id.get).map(u =>
           FieldError(this, Text(msg))
         )
       else
@@ -177,7 +177,7 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
     override def setFilter = trim _ :: toLower _ :: super.setFilter
 
     private def valUnique(msg: => String)(value: String): List[FieldError] = {
-      owner.meta.findAll(name, value).filter(_.id.is != owner.id.is).map(u =>
+      owner.meta.findAll(name, value).filter(_.id.get != owner.id.get).map(u =>
         FieldError(this, Text(msg))
       )
     }
@@ -196,14 +196,14 @@ trait ProtoAuthUser[T <: ProtoAuthUser[T]] extends MongoAuthUser[T] {
   }
   object permissions extends PermissionListField(this)
   object roles extends StringRefListField(this, Role) {
-    def permissions: List[Permission] = objs.flatMap(_.permissions.is)
-    def names: List[String] = objs.map(_.id.is)
+    def permissions: List[Permission] = objs.flatMap(_.permissions.get)
+    def names: List[String] = objs.map(_.id.get)
   }
 
-  lazy val authPermissions: Set[Permission] = (permissions.is ::: roles.permissions).toSet
+  lazy val authPermissions: Set[Permission] = (permissions.get ::: roles.permissions).toSet
   lazy val authRoles: Set[String] = roles.names.toSet
 
-  lazy val fancyEmail = AuthUtil.fancyEmail(username.is, email.is)
+  lazy val fancyEmail = AuthUtil.fancyEmail(username.get, email.get)
 }
 
 trait ProtoAuthUserMeta[UserType <: MongoAuthUser[UserType]]
