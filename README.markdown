@@ -4,17 +4,23 @@ Authentication and Authorization module for Lift-MongoDB-Record.
 
 # Installation
 
-Jars are available via the liftmodules.net repo.
-
-SBT 0.12
+Jars are available via the oss.sonatype.org repo.
 
 For *Lift 2.5.x* (Scala 2.9 and 2.10):
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth_2.5" % "0.4"
+    libraryDependencies += "net.liftmodules" %% "mongoauth_2.5" % "0.5"
+
+For *Lift <= 2.6-M3* (Scala 2.9 and Scala 2.10):
+
+    libraryDependencies += "net.liftmodules" %% "mongoauth_2.6" % "0.5"
+
+For *Lift 2.6-SNAPSHOT* (Scala 2.10):
+
+    libraryDependencies += "net.liftmodules" %% "mongoauth_2.6" % "0.6-SNAPSHOT"
 
 For *Lift 3.0.x* (Scala 2.10):
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "0.4"
+    libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "0.6-SNAPSHOT"
 
 
 # Configuration
