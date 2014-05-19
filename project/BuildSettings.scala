@@ -10,7 +10,7 @@ object BuildSettings {
     name := "mongoauth",
     organization := "net.liftmodules",
     version := "0.6-SNAPSHOT",
-    liftVersion <<= liftVersion ?? "2.6-SNAPSHOT",
+    liftVersion <<= liftVersion ?? "3.0-SNAPSHOT",
     liftEdition <<= liftVersion apply { _.substring(0,3) },
     name <<= (name, liftEdition) { (n, e) =>  n + "_" + e },
     scalaVersion := "2.10.0",
