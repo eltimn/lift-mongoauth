@@ -4,7 +4,7 @@ Authentication and Authorization module for Lift-MongoDB-Record.
 
 # Installation
 
-Jars are available via the oss.sonatype.org repo.
+This module is available from the Sonatype repo. It uses the Lift "edition" in the name. For example, if you use any of 2.5-SNAPSHOT, 2.5-RC4, or 2.5 the Lift edition is 2.5.
 
 For *Lift 2.5.x* (Scala 2.9 and 2.10):
 

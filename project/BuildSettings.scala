@@ -3,6 +3,10 @@ import sbt.Keys._
 
 object BuildSettings {
 
+  val resolutionRepos = Seq(
+    "Sonatype Snapshot" at "http://oss.sonatype.org/content/repositories/snapshots"
+  )
+
   val liftVersion = SettingKey[String]("liftVersion", "Version number of the Lift Web Framework")
   val liftEdition = SettingKey[String]("liftEdition", "Lift Edition (short version number to append to artifact name)")
 
@@ -20,7 +24,8 @@ object BuildSettings {
         Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps", "-language:implicitConversions")
       else
         Seq("-deprecation", "-unchecked")
-    }
+    },
+    resolvers ++= resolutionRepos
   )
 
   val publishSettings = seq(
