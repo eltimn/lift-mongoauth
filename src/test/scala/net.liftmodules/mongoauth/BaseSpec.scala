@@ -14,7 +14,7 @@ trait BaseSpec extends WordSpec with ShouldMatchers
 trait WithSessionSpec extends BaseSpec {
   def session = new LiftSession("", randomString(20), Empty)
 
-  override def withFixture(test: NoArgTest) {
+  override def withFixture(test: NoArgTest) = {
     S.initIfUninitted(session) { test() }
   }
 }

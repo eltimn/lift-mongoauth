@@ -4,7 +4,8 @@ import sbt.Keys._
 object BuildSettings {
 
   val resolutionRepos = Seq(
-    "Sonatype Snapshot" at "http://oss.sonatype.org/content/repositories/snapshots"
+    "Sonatype Snapshot" at "https://oss.sonatype.org/content/repositories/snapshots",
+    "Sonatype Release" at "https://oss.sonatype.org/content/repositories/releases"
   )
 
   val liftVersion = SettingKey[String]("liftVersion", "Version number of the Lift Web Framework")
@@ -14,24 +15,23 @@ object BuildSettings {
     name := "mongoauth",
     organization := "net.liftmodules",
     version := "0.6-SNAPSHOT",
-    liftVersion <<= liftVersion ?? "2.6-SNAPSHOT",
+    scalaVersion := "2.11.2",
+    liftVersion <<= liftVersion ?? "2.6-RC1",
     liftEdition <<= liftVersion apply { _.substring(0,3) },
     name <<= (name, liftEdition) { (n, e) =>  n + "_" + e },
-    scalaVersion := "2.10.4",
-    crossScalaVersions := Seq("2.9.2", "2.9.1", "2.9.1-1", "2.10.4"),
-    scalacOptions <<= scalaVersion map { sv: String =>
-      if (sv.startsWith("2.10."))
-        Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps", "-language:implicitConversions")
-      else
-        Seq("-deprecation", "-unchecked")
-    },
+    crossScalaVersions <<= liftEdition { le => le match {
+      case "3.0" => Seq("2.11.2")
+      case _ => Seq("2.9.2", "2.10.4", "2.11.2")
+    }},
+    scalacOptions <<= scalaBinaryVersion map { sbv => sbv match {
+      case "2.9.2" => Seq("-deprecation", "-unchecked")
+      case _ => Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps", "-language:implicitConversions")
+    }},
     resolvers ++= resolutionRepos
   )
 
   val publishSettings = seq(
     resolvers += "CB Central Mirror" at "http://repo.cloudbees.com/content/groups/public",
-    resolvers += "Sonatype OSS Release" at "http://oss.sonatype.org/content/repositories/releases",
-    resolvers += "Sonatype Snapshot" at "http://oss.sonatype.org/content/repositories/snapshots",
 
     publishTo <<= version { _.endsWith("SNAPSHOT") match {
       case true  => Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")

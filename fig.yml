@@ -1,0 +1,8 @@
+# sudo mkdir -p /srv/lift-mongoauth/mongo-data/db
+mongo:
+  image: dockerfile/mongodb
+  command: "/usr/bin/mongod --noprealloc --smallfiles"
+  ports:
+    - "3001:27017"
+  volumes:
+    - /srv/lift-mongoauth/mongo-data:/data
