@@ -14,7 +14,7 @@ object BuildSettings {
   val basicSettings = Defaults.defaultSettings ++ Seq(
     name := "mongoauth",
     organization := "net.liftmodules",
-    version := "0.6",
+    version := "0.7-SNAPSHOT",
     scalaVersion := "2.11.5",
     liftVersion <<= liftVersion ?? "2.6",
     liftEdition <<= liftVersion apply { _.substring(0,3) },
