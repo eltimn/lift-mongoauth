@@ -4,7 +4,7 @@ import org.scalatest.{BeforeAndAfter, WordSpec}
 
 import net.liftweb._
 import mongodb._
-import util.{DefaultConnectionIdentifier, ConnectionIdentifier}
+import util.{DefaultConnectionIdentifier, ConnectionIdentifier, Props}
 
 import com.mongodb.{MongoClient, ServerAddress}
 
@@ -15,7 +15,7 @@ trait MongoTestKit extends BeforeAndAfter {
     .replace(".", "_")
     .toLowerCase
 
-  def mongo = new MongoClient("127.0.0.1", 27017)
+  def mongo = new MongoClient("127.0.0.1", Props.getInt("mongo.default.port", 27017))
 
   // If you need more than one db, override this
   def dbs: List[(ConnectionIdentifier, String)] = List((DefaultConnectionIdentifier, dbName))

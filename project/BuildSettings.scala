@@ -4,8 +4,8 @@ import sbt.Keys._
 object BuildSettings {
 
   val resolutionRepos = Seq(
-    "Sonatype Snapshot" at "https://oss.sonatype.org/content/repositories/snapshots",
-    "Sonatype Release" at "https://oss.sonatype.org/content/repositories/releases"
+    Resolver.sonatypeRepo("releases"),
+    Resolver.sonatypeRepo("snapshots")
   )
 
   val liftVersion = SettingKey[String]("liftVersion", "Version number of the Lift Web Framework")
@@ -14,14 +14,14 @@ object BuildSettings {
   val basicSettings = Defaults.defaultSettings ++ Seq(
     name := "mongoauth",
     organization := "net.liftmodules",
-    version := "0.6-SNAPSHOT",
-    scalaVersion := "2.11.2",
-    liftVersion <<= liftVersion ?? "2.6-RC1",
+    version := "0.6",
+    scalaVersion := "2.11.5",
+    liftVersion <<= liftVersion ?? "2.6",
     liftEdition <<= liftVersion apply { _.substring(0,3) },
     name <<= (name, liftEdition) { (n, e) =>  n + "_" + e },
     crossScalaVersions <<= liftEdition { le => le match {
-      case "3.0" => Seq("2.11.2")
-      case _ => Seq("2.9.2", "2.10.4", "2.11.2")
+      case "3.0" => Seq("2.11.5")
+      case _ => Seq("2.9.2", "2.10.4", "2.11.5")
     }},
     scalacOptions <<= scalaBinaryVersion map { sbv => sbv match {
       case "2.9.2" => Seq("-deprecation", "-unchecked")
