@@ -1,9 +1,7 @@
 import sbt._
 import sbt.Keys._
 
-object LiftModuleBuild extends Build {
-
-  import BuildSettings._
+object LiftModuleBuild extends Build with BuildSettings {
 
   val project = Project("lift-mongoauth", file("."))
     .settings(basicSettings:_*)
