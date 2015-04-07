@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Keys._
 
-object BuildSettings {
+trait BuildSettings {
 
   val resolutionRepos = Seq(
     Resolver.sonatypeRepo("releases"),
