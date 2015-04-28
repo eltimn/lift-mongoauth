@@ -18,9 +18,6 @@ class SimpleUser extends ProtoAuthUser[SimpleUser] with ObjectIdPk[SimpleUser] {
 object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Loggable {
   import mongodb.BsonDSL._
 
-  //ensureIndex((email.name -> 1), true)
-  //ensureIndex((username.name -> 1), true)
-
   def findByStringId(id: String): Box[SimpleUser] =
     if (ObjectId.isValid(id)) find(new ObjectId(id))
     else Empty
@@ -80,7 +77,7 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
 
       sendMail(
         From(MongoAuth.systemFancyEmail),
-        Subject(S ? ("liftmodule-monogoauth.simpleUser.sendLoginToken.subject",siteName)),
+        Subject(S ? ("liftmodule-monogoauth.simpleUser.sendLoginToken.subject", siteName)),
         To(user.fancyEmail),
         PlainMailBodyType(msgTxt)
       )

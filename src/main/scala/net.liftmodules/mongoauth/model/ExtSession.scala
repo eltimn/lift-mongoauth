@@ -30,8 +30,6 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
 
   override def collectionName = "user.extsessions"
 
-  ensureIndex((userId.name -> 1))
-
   // MongoAuth vars
   private lazy val whenExpires = MongoAuth.extSessionExpires.vend
   private lazy val cookieName = MongoAuth.extSessionCookieName.vend
