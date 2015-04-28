@@ -3,6 +3,8 @@ package model
 
 import field.ExpiresField
 
+import java.util.UUID
+
 import org.joda.time.Hours
 
 import net.liftweb._
@@ -18,7 +20,7 @@ import org.bson.types.ObjectId
 /**
   * This is a token for automatically logging a user in
   */
-class LoginToken extends MongoRecord[LoginToken] with ObjectIdPk[LoginToken] {
+class LoginToken extends MongoRecord[LoginToken] with UUIDPk[LoginToken] {
   def meta = LoginToken
 
   object userId extends ObjectIdField(this)
@@ -31,8 +33,6 @@ object LoginToken extends LoginToken with MongoMetaRecord[LoginToken] {
   import mongodb.BsonDSL._
 
   override def collectionName = "user.logintokens"
-
-  ensureIndex((userId.name -> 1))
 
   private lazy val loginTokenUrl = MongoAuth.loginTokenUrl.vend
   private lazy val loginTokenExpires = MongoAuth.loginTokenExpires.vend
@@ -58,6 +58,5 @@ object LoginToken extends LoginToken with MongoMetaRecord[LoginToken] {
   }
 
   def findByStringId(in: String): Box[LoginToken] =
-    if (ObjectId.isValid(in)) find(new ObjectId(in))
-    else Failure("Invalid ObjectId: "+in)
+    tryo(UUID.fromString(in)).flatMap(find)
 }
