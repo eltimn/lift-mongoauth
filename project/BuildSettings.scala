@@ -10,7 +10,6 @@ trait BuildSettings {
 
   val basicSettings = Defaults.defaultSettings ++ Seq(
     name := "mongoauth",
-    organization := "net.liftmodules",
     scalaVersion := "2.11.5",
     liftVersion <<= liftVersion ?? "3.0-M8",
     liftEdition <<= liftVersion apply { _.substring(0,3) },
@@ -23,7 +22,7 @@ trait BuildSettings {
       case "2.9.2" => Seq("-deprecation", "-unchecked")
       case _ => Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps", "-language:implicitConversions")
     }},
-    SbtGit.git.baseVersion in ThisBuild := "0.7",
+    SbtGit.git.baseVersion in ThisBuild := "0.8",
     organization in ThisBuild := "net.liftmodules"
   )
 
