@@ -1,6 +1,8 @@
 import sbt._
 import sbt.Keys._
 
+import com.typesafe.sbt.GitVersioning
+
 object LiftModuleBuild extends Build with BuildSettings {
 
   val project = Project("lift-mongoauth", file("."))
@@ -20,4 +22,10 @@ object LiftModuleBuild extends Build with BuildSettings {
         "org.mindrot" % "jbcrypt" % "0.3m" % "compile"
       )
     })
+    .settings(Seq(
+      // Necessary beginning with sbt 0.13, otherwise Lift editions get messed up.
+      // E.g. "2.5" gets converted to "2-5"
+      moduleName := name.value
+    ))
+    .enablePlugins(GitVersioning)
 }

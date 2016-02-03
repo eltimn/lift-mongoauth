@@ -4,7 +4,15 @@ Authentication and Authorization module for Lift-MongoDB-Record.
 
 # Installation
 
-This module is available from the Sonatype repo. It uses the Lift "edition" in the name. For example, if you use any of 2.5-SNAPSHOT, 2.5-RC4, or 2.5 the Lift edition is 2.5.
+As of v0.7 this module is published to bintray. This may or may not require sbt 0.13.6+ and may or may not require the following line in your build:
+
+    resolvers += Resolver.jcenterRepo
+
+Prior versions were published to sonatype and should be available from maven central.
+
+It uses the Lift "edition" in the name. For example, if you use any of 2.5-SNAPSHOT, 2.5-RC4, or 2.5 the Lift edition is 2.5.
+
+**Note:** some of the versions published had a '-' in the edition instead of a '.'. I.e *extras_3-0* instead of *extras_3.0*.
 
 For *Lift 2.5.x* (Scala 2.9 and 2.10):
 
@@ -22,6 +30,9 @@ For *Lift 3.0.x* (Scala 2.10, 2.11):
 
     libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "0.7"
 
+For *Lift 3.0-M8+* (Scala 2.11):
+
+    libraryDependencies += "net.liftmodules" %% "extras_3.0" % "0.7"
 
 # Configuration
 
