@@ -10,18 +10,15 @@ trait BuildSettings {
 
   val basicSettings = Defaults.defaultSettings ++ Seq(
     name := "mongoauth",
-    scalaVersion := "2.11.5",
-    liftVersion <<= liftVersion ?? "3.0-M8",
+    scalaVersion := "2.11.8",
+    liftVersion <<= liftVersion ?? "3.0-RC2",
     liftEdition <<= liftVersion apply { _.substring(0,3) },
     name <<= (name, liftEdition) { (n, e) =>  n + "_" + e },
     crossScalaVersions <<= liftEdition { le => le match {
-      case "3.0" => Seq("2.11.5")
-      case _ => Seq("2.9.2", "2.10.4", "2.11.5")
+      case "3.0" => Seq("2.11.8")
+      case _ => Seq("2.10.6", "2.11.8")
     }},
-    scalacOptions <<= scalaBinaryVersion map { sbv => sbv match {
-      case "2.9.2" => Seq("-deprecation", "-unchecked")
-      case _ => Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps", "-language:implicitConversions")
-    }},
+    scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps", "-language:implicitConversions"),
     SbtGit.git.baseVersion in ThisBuild := "0.8",
     organization in ThisBuild := "net.liftmodules"
   )
