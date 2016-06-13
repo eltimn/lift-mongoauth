@@ -4,10 +4,10 @@ package net.liftmodules.mongoauth
  * A permission that has three parts; domain, actions, and entities
  */
 case class Permission(
-  val domain: String,
-  val actions: Set[String] = Set(Permission.wildcardToken),
-  val entities: Set[String] = Set(Permission.wildcardToken))
-{
+  domain: String,
+  actions: Set[String] = Set(Permission.wildcardToken),
+  entities: Set[String] = Set(Permission.wildcardToken)
+) {
   def implies(p: Permission) = p match {
     case Permission(d, a, e) =>
       if (d == Permission.wildcardToken)

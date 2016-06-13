@@ -17,14 +17,17 @@ import record.field.{PasswordField => _, _}
 import util.FieldError
 import util.Helpers
 
-/**
- * AuthUser is a base class that gives you a "User" that has roles and permissions.
- */
-trait AuthUser {
+trait LifeCycleUser {
   /*
    * String representing the User ID
    */
   def userIdAsString: String
+}
+
+/**
+ * AuthUser is a base class that gives you a "User" that has roles and permissions.
+ */
+trait AuthUser extends LifeCycleUser {
 
   /*
    * A list of this user's permissions
@@ -37,47 +40,14 @@ trait AuthUser {
   def authRoles: Set[String]
 }
 
-trait AuthUserMeta[UserType <: AuthUser] {
-  /*
-   * True when the user request var is defined.
-   */
-  def isLoggedIn: Boolean
-  /*
-   * User logged in by supplying password. False if auto logged in by ExtSession or LoginToken.
-   */
-  def isAuthenticated: Boolean
-  /*
-   * Current user has the given role
-   */
-  def hasRole(role: String): Boolean
-  def lacksRole(role: String): Boolean = !hasRole(role)
-  def hasAnyRoles(roles: Seq[String]) = roles exists (r => hasRole(r.trim))
-
-  /*
-   * Current user has the given permission
-   */
-  def hasPermission(permission: Permission): Boolean
-  def lacksPermission(permission: Permission): Boolean = !hasPermission(permission)
-
-  /*
-   * Log the current user out
-   */
-  def logUserOut(): Unit
-
-  /*
-   * Handle a LoginToken. Called from Locs.loginTokenLocParams
-   */
-  def handleLoginToken(): Box[LiftResponse] = Empty
-}
-
 /*
  * Trait that has login related code
  */
-trait UserLifeCycle[UserType <: AuthUser] {
+trait UserLifeCycle[UserType <: LifeCycleUser] {
 
-  /*
-   * Given a String representing the User ID, find the user
-   */
+  /**
+    * Given a String representing the User ID, find the user
+    */
   def findByStringId(id: String): Box[UserType]
 
   // log in/out lifecycle callbacks
@@ -97,18 +67,16 @@ trait UserLifeCycle[UserType <: AuthUser] {
   }
   def currentUser: Box[UserType] = curUser.get
 
+  /**
+    * True when the user request var is defined.
+    */
   def isLoggedIn: Boolean = currentUserId.isDefined
+
+  /**
+    * true if user logged in by supplying password. False if
+    * auto logged in by ExtSession or LoginToken.
+    */
   def isAuthenticated: Boolean = curUserIsAuthenticated.is
-
-  def hasRole(role: String): Boolean = currentUser
-    .map(_.authRoles.exists(_ == role))
-    .openOr(false)
-
-  def hasPermission(permission: Permission): Boolean = {
-    currentUser
-      .map(u => permission.implies(u.authPermissions))
-      .openOr(false)
-  }
 
   def logUserIn(who: UserType, isAuthed: Boolean = false, isRemember: Boolean = false): Unit = {
     curUserId.remove()
@@ -122,18 +90,50 @@ trait UserLifeCycle[UserType <: AuthUser] {
       ExtSession.createExtSessionBox(who.userIdAsString)
   }
 
-  def logUserOut() {
+  /**
+    * Log the current user out
+    */
+  def logUserOut(): Unit = {
     onLogOut.foreach(_(currentUser))
     curUserId.remove()
     curUserIsAuthenticated.remove()
     curUser.remove()
     S.session.foreach(_.destroySession())
   }
+
+  /**
+    * Handle a LoginToken. Called from Locs.loginTokenLocParams
+    */
+  def handleLoginToken(): Box[LiftResponse] = Empty
 }
 
-/*
- * Mongo version of AuthUser
- */
+trait AuthUserMeta[UserType <: AuthUser] extends UserLifeCycle[UserType] {
+
+  /**
+    * Current user has the given role
+    */
+  def hasRole(role: String): Boolean = currentUser
+    .map(_.authRoles.exists(_ == role))
+    .openOr(false)
+
+  def lacksRole(role: String): Boolean = !hasRole(role)
+  def hasAnyRoles(roles: Seq[String]) = roles.exists(r => hasRole(r.trim))
+
+  /*
+   * Current user has the given permission
+   */
+  def hasPermission(permission: Permission): Boolean = {
+    currentUser
+      .map(u => permission.implies(u.authPermissions))
+      .openOr(false)
+  }
+
+  def lacksPermission(permission: Permission): Boolean = !hasPermission(permission)
+}
+
+/**
+  * Mongo version of AuthUser
+  */
 trait MongoAuthUser[T <: MongoAuthUser[T]] extends MongoRecord[T] with AuthUser {
   self: T =>
 

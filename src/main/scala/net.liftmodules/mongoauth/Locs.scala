@@ -6,14 +6,18 @@ import http.{RedirectResponse, RedirectWithState, S, RedirectState}
 import sitemap.{Loc, Menu}
 import sitemap.Loc.{DispatchLocSnippets, EarlyResponse, If}
 
-object Locs extends Locs
-trait Locs {
-  private lazy val userMeta = MongoAuth.authUserMeta.vend
+object Locs extends Locs {
+  protected def userMeta = MongoAuth.authUserMeta.vend
+}
+trait Locs extends LifeCycleLocs with AuthLocs
 
-  private lazy val indexUrl = MongoAuth.indexUrl.vend
-  private lazy val loginUrl = MongoAuth.loginUrl.vend
-  private lazy val logoutUrl = MongoAuth.logoutUrl.vend
-  private lazy val loginTokenUrl = MongoAuth.loginTokenUrl.vend
+trait LifeCycleLocs {
+  protected def userMeta: UserLifeCycle[_]
+
+  protected lazy val indexUrl = MongoAuth.indexUrl.vend
+  protected lazy val loginUrl = MongoAuth.loginUrl.vend
+  protected lazy val logoutUrl = MongoAuth.logoutUrl.vend
+  protected lazy val loginTokenUrl = MongoAuth.loginTokenUrl.vend
 
   // redirects
   def RedirectToLoginWithReferrer = {
@@ -23,9 +27,6 @@ trait Locs {
 
   def RedirectToIndex = RedirectResponse(indexUrl)
   def RedirectToIndexWithCookies = RedirectResponse(indexUrl, S.responseCookies:_*)
-
-  protected def DisplayError(message: String) = () =>
-    RedirectWithState(indexUrl, RedirectState(() => S.error(S ? message)))
 
   // Loc guards
   val RequireAuthentication = If(
@@ -43,26 +44,6 @@ trait Locs {
   val RequireNotLoggedIn = If(
     () => !userMeta.isLoggedIn,
     () => RedirectToIndex)
-
-  def HasRole(role: String) =
-    If(() => userMeta.hasRole(role),
-      DisplayError("liftmodule-monogoauth.locs.hasRole"))
-
-  def LacksRole(role: String) =
-    If(() => userMeta.lacksRole(role),
-      DisplayError("liftmodule-monogoauth.locs.lacksRole"))
-
-  def HasPermission(permission: Permission) =
-    If(() => userMeta.hasPermission(permission),
-      DisplayError("liftmodule-monogoauth.locs.hasPermission"))
-
-  def LacksPermission(permission: Permission) =
-    If(() => userMeta.lacksPermission(permission),
-      DisplayError("liftmodule-monogoauth.locs.overQualified"))
-
-  def HasAnyRoles(roles: Seq[String]) =
-    If(() => userMeta.hasAnyRoles(roles),
-       DisplayError("liftmodule-monogoauth.locs.wrongRole"))
 
   // Menus
   def buildLogoutMenu = Menu(Loc(
@@ -86,4 +67,32 @@ trait Locs {
   protected def loginTokenLocParams = RequireNotLoggedIn ::
     EarlyResponse(() => userMeta.handleLoginToken) :: Nil
 
+}
+
+trait AuthLocs {
+  protected def userMeta: AuthUserMeta[_]
+
+  protected def DisplayError(message: String) = () =>
+    RedirectWithState(MongoAuth.indexUrl.vend, RedirectState(() => S.error(S ? message)))
+
+  // Loc guards
+  def HasRole(role: String) =
+    If(() => userMeta.hasRole(role),
+      DisplayError("liftmodule-monogoauth.locs.hasRole"))
+
+  def LacksRole(role: String) =
+    If(() => userMeta.lacksRole(role),
+      DisplayError("liftmodule-monogoauth.locs.lacksRole"))
+
+  def HasPermission(permission: Permission) =
+    If(() => userMeta.hasPermission(permission),
+      DisplayError("liftmodule-monogoauth.locs.hasPermission"))
+
+  def LacksPermission(permission: Permission) =
+    If(() => userMeta.lacksPermission(permission),
+      DisplayError("liftmodule-monogoauth.locs.overQualified"))
+
+  def HasAnyRoles(roles: Seq[String]) =
+    If(() => userMeta.hasAnyRoles(roles),
+       DisplayError("liftmodule-monogoauth.locs.wrongRole"))
 }

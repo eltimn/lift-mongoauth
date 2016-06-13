@@ -19,7 +19,7 @@ trait BuildSettings {
       case _ => Seq("2.10.6", "2.11.8")
     }},
     scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-language:postfixOps", "-language:implicitConversions"),
-    SbtGit.git.baseVersion in ThisBuild := "0.8",
+    SbtGit.git.baseVersion in ThisBuild := "1.0",
     organization in ThisBuild := "net.liftmodules"
   )
 

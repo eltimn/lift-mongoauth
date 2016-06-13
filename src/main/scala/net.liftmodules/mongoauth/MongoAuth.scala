@@ -40,7 +40,7 @@ object MongoAuth extends Factory {
         .openOrThrowException("isDefined is called in the guard")
   })
 
-  // AuthUserMeta object
+  // AuthUserMeta object, used in Locs
   val authUserMeta = new FactoryMaker[AuthUserMeta[_]](model.SimpleUser) {}
 
   // urls
