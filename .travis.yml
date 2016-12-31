@@ -5,5 +5,7 @@ cache:
   directories:
     - "$HOME/.ivy2/cache"
     - "$HOME/.sbt"
+services:
+  - mongodb
 script:
   - sbt +test +package

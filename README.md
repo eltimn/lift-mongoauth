@@ -1,4 +1,7 @@
-# Lift MongoAuth Module
+MongoAuth Lift Module
+=====================
+
+[![Build Status](https://travis-ci.org/eltimn/lift-mongoauth.svg?branch=master)](https://travis-ci.org/liftmodules/amqp)
 
 Authentication and Authorization module for Lift-MongoDB-Record.
 
