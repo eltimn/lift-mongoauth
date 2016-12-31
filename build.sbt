@@ -34,4 +34,4 @@ LiftModule.bintrayPublishSettings
 
 enablePlugins(GitVersioning, GitBranchPrompt)
 
-git.baseVersion := "1.0"
+git.baseVersion := "1.1"
