@@ -1,6 +1,8 @@
 package net.liftmodules.mongoauth
 package field
 
+import scala.collection.JavaConverters._
+
 import net.liftweb._
 import common._
 import mongodb.record.field.MongoListField
@@ -11,7 +13,6 @@ import com.mongodb._
 class PermissionListField[OwnerType <: BsonRecord[OwnerType]](rec: OwnerType)
   extends MongoListField[OwnerType, Permission](rec)
 {
-  import scala.collection.JavaConversions._
 
   override def asDBObject: DBObject = {
     val dbl = new BasicDBList
@@ -20,7 +21,7 @@ class PermissionListField[OwnerType <: BsonRecord[OwnerType]](rec: OwnerType)
   }
 
   override def setFromDBObject(dbo: DBObject): Box[List[Permission]] =
-    setBox(Full(dbo.keySet.toList.map(k => {
+    setBox(Full(dbo.keySet.asScala.toList.map { k =>
       Permission.fromString(dbo.get(k.toString).asInstanceOf[String])
-    })))
+    }))
 }
