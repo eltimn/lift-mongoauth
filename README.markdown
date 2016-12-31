@@ -30,9 +30,9 @@ For *Lift 3.0.x* (Scala 2.10, 2.11):
 
     libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "0.7"
 
-For *Lift 3.0-M8+* (Scala 2.11):
+For *Lift 3.0-M8+* (Scala 2.11, 2.12):
 
-    libraryDependencies += "net.liftmodules" %% "extras_3.0" % "0.7"
+    libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "1.0"
 
 # Configuration
 
