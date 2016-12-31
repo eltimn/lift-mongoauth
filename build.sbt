@@ -23,8 +23,8 @@ libraryDependencies ++=
   "org.mindrot" % "jbcrypt" % "0.3m" % "compile" ::
   Nil
 
-LiftModule.bintrayPublishSettings
-
 enablePlugins(GitVersioning)
 
-git.baseVersion := "1.1"
+bintrayReleaseOnPublish in ThisBuild := false
+
+LiftModule.bintrayPublishSettings
