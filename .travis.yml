@@ -8,4 +8,4 @@ cache:
 services:
   - mongodb
 script:
-  - sbt +test +package
+  - sbt +clean +test +package +doc
