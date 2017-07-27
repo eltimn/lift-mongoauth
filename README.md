@@ -9,23 +9,21 @@ Authentication and Authorization module for Lift-MongoDB-Record.
 
 Releases uses the Lift "edition" in the name. For example, if you use any of 2.5-SNAPSHOT, 2.5-RC4, or 2.5 the Lift edition is 2.5.
 
-**Note:** some of the versions published had a '-' in the edition instead of a '.'. I.e *extras_2-5* instead of *extras_2.3*.
+**Note:** some of the versions published had a '-' in the edition instead of a '.'. I.e *mongoauth_2-5* instead of *mongoauth_2.3*.
 
-For *Lift 3.0* (Scala 2.11, 2.12):
+To include this module in your Lift project change `build.sbt` to include:
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth_3.0" % "1.2"
+    libraryDependencies += "net.liftmodules" %% "mongoauth_3.1" % "1.3.0"
 
-For *Lift 2.5.x* (Scala 2.9 and 2.10):
+Previous releases
+-----------------
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth_2.5" % "0.5"
-
-For *Lift <= 2.6-M3* (Scala 2.9 and Scala 2.10):
-
-    libraryDependencies += "net.liftmodules" %% "mongoauth_2.6" % "0.5"
-
-For *Lift => 2.6-M4* (Scala 2.10, 2.11):
-
-    libraryDependencies += "net.liftmodules" %% "mongoauth_2.6" % "0.7"
+| Lift Version | Scala Version | Module Version |
+|--------------|---------------|----------------|
+| 3.1          |  2.12, 2.11   | 1.3.0          |
+| 3.0          |  2.12, 2.11   | 1.2            |
+| 2.6          |  2.10, 2.9    | 0.7            |
+| 2.5          |  2.10, 2.9    | 0.5            |
 
 # Configuration
 

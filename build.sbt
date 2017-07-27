@@ -1,19 +1,13 @@
 import LiftModule.{liftVersion, liftEdition}
 
 name := "mongoauth"
-
 organization := "net.liftmodules"
-
-liftVersion := "3.0.1"
-
+liftVersion := "3.1.0"
 liftEdition := liftVersion.value.substring(0,3)
-
 moduleName := name.value + "_" + liftEdition.value
 
-scalaVersion := "2.12.1"
-
-crossScalaVersions := Seq("2.12.1", "2.11.8")
-
+scalaVersion := "2.12.2"
+crossScalaVersions := Seq("2.12.2", "2.11.11")
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 libraryDependencies ++=
