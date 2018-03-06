@@ -2,12 +2,12 @@ import LiftModule.{liftVersion, liftEdition}
 
 name := "mongoauth"
 organization := "net.liftmodules"
-liftVersion := "3.1.0"
+liftVersion := "3.2.0"
 liftEdition := liftVersion.value.substring(0,3)
 moduleName := name.value + "_" + liftEdition.value
 
 scalaVersion := "2.12.4"
-crossScalaVersions := Seq("2.12.4", "2.11.11")
+crossScalaVersions := Seq("2.12.4", "2.11.12")
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 libraryDependencies ++=

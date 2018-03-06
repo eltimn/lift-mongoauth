@@ -1,23 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
+liftVersions=("3.1.1" "3.2.0")
+
 if [ -n "$1" ]; then
-  VERSION=$1
+  version=$1
 
   # generate version file
-  echo "git.baseVersion := \"${VERSION}\"" > version.sbt
+  echo "git.baseVersion := \"${version}\"" > version.sbt
 
-  # git commit and tag
+  # commit and tag
   git add version.sbt
-  git commit -m "Release v${VERSION}"
-  git tag v${VERSION}
+  git commit -m "Release v${version}"
+  git tag v${version}
 
-  # build and publish it
-  sbt +clean +test +publish
+  # build and publish it for each version of Lift
+  for v in "${liftVersions[@]}"; do
+    sbt "set LiftModule.liftVersion := \"${v}\"" +clean +test +package
+  done
 
+  # push
   git push origin master
-  git push origin v${VERSION}
+  git push origin v${version}
 
 else
   echo "Usage: release.sh [version]"
