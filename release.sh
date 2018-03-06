@@ -17,7 +17,7 @@ if [ -n "$1" ]; then
 
   # build and publish it for each version of Lift
   for v in "${liftVersions[@]}"; do
-    sbt "set LiftModule.liftVersion := \"${v}\"" +clean +test +package
+    sbt "set LiftModule.liftVersion := \"${v}\"" +clean +test +publish
   done
 
   # push
