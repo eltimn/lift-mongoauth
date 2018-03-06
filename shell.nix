@@ -1,6 +1,6 @@
 with import <nixpkgs> {};
 stdenv.mkDerivation rec {
-  name = "dev";
+  name = "env";
   env = buildEnv { name = name; paths = buildInputs; };
   buildInputs = [
     openjdk
