@@ -7,6 +7,6 @@ stdenv.mkDerivation rec {
     sbt
     nodejs-8_x
     yarn
-    python36Packages.docker_compose
+    docker_compose
   ];
 }

@@ -2,7 +2,7 @@
 
 set -e
 
-liftVersions=("3.1.1" "3.2.0")
+liftVersions=("3.2.0" "3.3.0")
 
 if [ -n "$1" ]; then
   version=$1
