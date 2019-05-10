@@ -13,15 +13,16 @@ Releases use the Lift "edition" in the name. For example, if you use any of 2.5-
 
 To include this module in your Lift project change `build.sbt` to include:
 
-    libraryDependencies += "net.liftmodules" %% "mongoauth_3.3" % "1.4.1"
+    libraryDependencies += "net.liftmodules" %% "mongoauth_3.3" % "1.4.2"
 
 Previous releases
 -----------------
 
 | Lift Version | Scala Version | Module Version |
 |--------------|---------------|----------------|
-| 3.2, 3.3     |  2.12, 2.11   | 1.4.1          |
-| 3.1, 3.2     |  2.12, 2.11   | 1.4.0          |
+| 3.3          |  2.12, 2.11   | 1.4.2          |
+| 3.2          |  2.12, 2.11   | 1.4.2          |
+| 3.1          |  2.12, 2.11   | 1.4.0          |
 | 3.0          |  2.12, 2.11   | 1.2            |
 | 2.6          |  2.10, 2.9    | 0.7            |
 | 2.5          |  2.10, 2.9    | 0.5            |
