@@ -66,7 +66,7 @@ trait PasswordTypedField extends TypedField[String] {
     funcName => <input type="password" maxlength={maxLength.toString}
       name={funcName}
       value={valueBox openOr ""}
-      tabindex={tabIndex toString}/>}
+      tabindex={tabIndex.toString}/>}
 
   override def toForm: Box[NodeSeq] =
     uniqueFieldId match {

@@ -8,7 +8,7 @@ moduleName := name.value + "_" + liftEdition.value
 
 scalaVersion := "2.12.8"
 crossScalaVersions := Seq("2.12.8", "2.11.12")
-scalacOptions ++= Seq("-unchecked", "-deprecation")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 
 libraryDependencies ++=
   "net.liftweb" %% "lift-mongodb-record" % liftVersion.value % "provided" ::

@@ -7,6 +7,11 @@ liftVersions=("3.2.0" "3.3.0")
 if [ -n "$1" ]; then
   version=$1
 
+  # build and test for each version of Lift
+  for v in "${liftVersions[@]}"; do
+    sbt "set LiftModule.liftVersion := \"${v}\"" +clean +test
+  done
+
   # generate version file
   echo "git.baseVersion := \"${version}\"" > version.sbt
 
@@ -15,9 +20,9 @@ if [ -n "$1" ]; then
   git commit -m "Release v${version}"
   git tag v${version}
 
-  # build and publish it for each version of Lift
+  # publish it for each version of Lift
   for v in "${liftVersions[@]}"; do
-    sbt "set LiftModule.liftVersion := \"${v}\"" +clean +test +publish
+    sbt "set LiftModule.liftVersion := \"${v}\"" +publish
   done
 
   # push
