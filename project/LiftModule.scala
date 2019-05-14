@@ -9,10 +9,6 @@ object LiftModule {
 
   val bintrayPublishSettings = Seq(
     pomExtra := {
-      <scm>
-        <url>git@github.com:eltimn/lift-mongoauth.git</url>
-        <connection>scm:git:git@github.com:eltimn/lift-mongoauth.git</connection>
-      </scm>
       <developers>
         <developer>
           <id>eltimn</id>
