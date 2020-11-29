@@ -41,7 +41,7 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
   /*
    * LoginToken
    */
-  override def handleLoginToken: Box[LiftResponse] = {
+  override def handleLoginToken(): Box[LiftResponse] = {
     val resp = S.param("token").flatMap(LoginToken.findByStringId) match {
       case Full(at) if (at.expires.isExpired) => {
         at.delete_!
@@ -50,7 +50,7 @@ object SimpleUser extends SimpleUser with ProtoAuthUserMeta[SimpleUser] with Log
       case Full(at) => find(at.userId.get).map(user => {
         if (user.validate.length == 0) {
           user.verified(true)
-          user.save(false)
+          user.save()
           logUserIn(user)
           at.delete_!
           RedirectResponse(loginTokenAfterUrl)

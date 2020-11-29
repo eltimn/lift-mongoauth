@@ -1,15 +1,38 @@
 package net.liftmodules.mongoauth
 
-import org.scalatest.{BeforeAndAfter, WordSpec}
+import java.util.regex.Pattern
 
-import net.liftweb._
-import mongodb._
-import util.{DefaultConnectionIdentifier, ConnectionIdentifier, Props}
+import org.scalatest.BeforeAndAfter
+import org.scalatest.wordspec.AnyWordSpec
 
-import com.mongodb.{MongoClient, ServerAddress}
+import net.liftweb.mongodb._
+import net.liftweb.mongodb.codecs._
+import net.liftweb.mongodb.record.MongoRecordRules
+import net.liftweb.util.{DefaultConnectionIdentifier, ConnectionIdentifier, Props}
+
+import net.liftmodules.mongoauth.codecs.PermissionCodec
+
+import org.bson.{BsonDocument, BsonType}
+import org.bson.codecs.configuration.{CodecRegistry, CodecRegistries}
+import com.mongodb.{MongoClient, MongoClientSettings, ServerAddress}
 
 trait MongoTestKit extends BeforeAndAfter {
-  this: WordSpec =>
+  this: AnyWordSpec =>
+
+  // val bsonTypeClassMap: BsonTypeClassMap =
+  //   BsonTypeClassMap(
+  //     (BsonType.REGULAR_EXPRESSION -> classOf[Pattern]),
+  //     (BsonType.BINARY -> classOf[Array[Byte]]),
+  //     (BsonType.DOCUMENT, classOf[BsonDocument])
+  //   )
+
+  // val registry: CodecRegistry = CodecRegistries.fromRegistries(
+  //   MongoClientSettings.getDefaultCodecRegistry(),
+  //   CodecRegistries.fromCodecs(BigDecimalStringCodec(), CalendarCodec(), JodaDateTimeCodec(), PermissionCodec())
+  // )
+
+  // MongoRecordRules.defaultCodecRegistry.default.set(registry)
+  // MongoRecordRules.defaultBsonTypeClassMap.default.set(bsonTypeClassMap)
 
   def dbName = "test_"+this.getClass.getName
     .replace(".", "_")
@@ -33,7 +56,7 @@ trait MongoTestKit extends BeforeAndAfter {
     if (!debug) {
       // drop the databases
       dbs foreach { case (id, _) =>
-        MongoDB.use(id) { db => db.dropDatabase() }
+        MongoDB.useDatabase(id) { db => db.drop() }
       }
     }
 

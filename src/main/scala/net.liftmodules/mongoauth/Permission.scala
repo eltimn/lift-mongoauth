@@ -28,7 +28,7 @@ case class Permission(
     case _ => false
   }
 
-  def implies(ps: Set[Permission]): Boolean = ps.exists(this.implies)
+  def implies(ps: Set[Permission]): Boolean = ps.exists(p => this.implies(p))
 
   override def toString = {
     domain+Permission.partDivider+actions.mkString(Permission.subpartDivider)+Permission.partDivider+entities.mkString(Permission.subpartDivider)
