@@ -47,7 +47,7 @@ object ExtSession extends ExtSession with MongoMetaRecord[ExtSession] with Logga
 
   def createExtSessionBox(uid: ObjectId): Box[Unit] = {
     deleteExtCookie() // make sure existing cookie is removed
-    createRecord.userId(uid).saveBox.map { inst =>
+    createRecord.userId(uid).saveBox().map { inst =>
       val cookie = new HTTPCookie(
         cookieName,
         Full(inst.id.value.toString),

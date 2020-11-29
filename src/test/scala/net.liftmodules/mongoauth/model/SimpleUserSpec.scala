@@ -2,7 +2,7 @@ package net.liftmodules.mongoauth
 package model
 
 class SimpleUserSpec extends WithSessionSpec with MongoTestKit {
-  //override val debug = true
+  override val debug = false
   val userPassword = "password"
 
   def testUser = SimpleUser.createRecord
@@ -17,9 +17,10 @@ class SimpleUserSpec extends WithSessionSpec with MongoTestKit {
       val perms = List(printer, userEntity)
       val user = testUser
         .permissions(perms)
-        .save(false)
+        .save()
+
       val userFromDb = SimpleUser.find(user.id.get)
-      userFromDb should be ('defined)
+      userFromDb.isDefined should be (true)
       userFromDb foreach { u =>
         u.permissions.get should equal (perms)
       }

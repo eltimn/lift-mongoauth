@@ -1,14 +1,14 @@
 package net.liftmodules.mongoauth
 
-import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-import net.liftweb._
-import common._
-import http._
-import util._
-import Helpers._
+import net.liftweb.common._
+import net.liftweb.http._
+import net.liftweb.util._
+import net.liftweb.util.Helpers._
 
-trait BaseSpec extends WordSpec with Matchers
+trait BaseSpec extends AnyWordSpec with Matchers
 
 trait WithSessionSpec extends BaseSpec {
   def session = new LiftSession("", randomString(20), Empty)

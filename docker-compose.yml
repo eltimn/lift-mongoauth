@@ -1,4 +1,4 @@
 mongo:
-  image: mongo:3.4
+  image: mongo:4.4
   ports:
     - "24700:27017"

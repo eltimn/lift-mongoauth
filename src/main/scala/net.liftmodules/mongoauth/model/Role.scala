@@ -30,5 +30,5 @@ object Role extends Role with MongoMetaRecord[Role] {
   @deprecated("Use findOrCreateAndSaveBox instead.", "0.6")
   def findOrCreateAndSave(in: String): Role = findOrCreate(in).save(false)
 
-  def findOrCreateAndSaveBox(in: String): Box[Role] = findOrCreate(in).saveBox
+  def findOrCreateAndSaveBox(in: String): Box[Role] = findOrCreate(in).saveBox()
 }

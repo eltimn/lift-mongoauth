@@ -16,6 +16,7 @@ import record.MandatoryTypedField
 import util.Helpers.tryo
 
 import org.bson.types.ObjectId
+import com.mongodb.client.model.Filters.{eq => eqs, _}
 
 /**
   * This is a token for automatically logging a user in
@@ -39,22 +40,20 @@ object LoginToken extends LoginToken with MongoMetaRecord[LoginToken] {
 
   def url(inst: LoginToken): String = "%s%s?token=%s".format(S.hostAndPath, loginTokenUrl, inst.id.toString)
 
-  @deprecated("use createForUserIdBox instead", "0.6")
   def createForUserId(uid: ObjectId): LoginToken = {
-    createRecord.userId(uid).save(false)
+    createRecord.userId(uid).save()
   }
 
   def createForUserIdBox(uid: ObjectId): Box[LoginToken] = {
-    createRecord.userId(uid).saveBox
+    createRecord.userId(uid).saveBox()
   }
 
-  @deprecated("use deleteAllByUserIdBox instead", "0.6")
   def deleteAllByUserId(uid: ObjectId): Unit = {
-    delete(userId.name, uid)
+    deleteMany(eqs(userId.name, uid))
   }
 
   def deleteAllByUserIdBox(uid: ObjectId): Box[Unit] = tryo {
-    delete(userId.name, uid)
+    deleteMany(eqs(userId.name, uid))
   }
 
   def findByStringId(in: String): Box[LoginToken] =

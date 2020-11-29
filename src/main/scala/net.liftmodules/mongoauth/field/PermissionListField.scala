@@ -1,27 +1,34 @@
 package net.liftmodules.mongoauth
 package field
 
-import scala.collection.JavaConverters._
+import net.liftmodules.mongoauth.codecs.PermissionCodec
+import net.liftweb.mongodb.record.field.MongoListField
+import net.liftweb.mongodb.record.BsonRecord
 
-import net.liftweb._
-import common._
-import mongodb.record.field.MongoListField
-import mongodb.record.BsonRecord
-
-import com.mongodb._
+import org.bson._
+import org.bson.codecs.{BsonTypeCodecMap, DecoderContext, EncoderContext}
+import org.bson.codecs.configuration.CodecRegistry
 
 class PermissionListField[OwnerType <: BsonRecord[OwnerType]](rec: OwnerType)
   extends MongoListField[OwnerType, Permission](rec)
 {
+  private val codec = PermissionCodec()
 
-  override def asDBObject: DBObject = {
-    val dbl = new BasicDBList
-    value.foreach { v => dbl.add(v.toString) }
-    dbl
+  override protected def readValue(reader: BsonReader, decoderContext: DecoderContext, codecRegistry: CodecRegistry, bsonTypeCodecMap: BsonTypeCodecMap): Any = {
+    reader.getCurrentBsonType match {
+      case BsonType.STRING =>
+        codec.decode(reader, decoderContext)
+      case _ =>
+        super.readValue(reader, decoderContext, codecRegistry, bsonTypeCodecMap)
+    }
   }
 
-  override def setFromDBObject(dbo: DBObject): Box[List[Permission]] =
-    setBox(Full(dbo.keySet.asScala.toList.map { k =>
-      Permission.fromString(dbo.get(k.toString).asInstanceOf[String])
-    }))
+  override protected def writeValue[T](writer: BsonWriter, encoderContext: EncoderContext, value: T, codecRegistry: CodecRegistry): Unit = {
+    value match {
+      case p: Permission =>
+        writer.writeString(p.toString)
+      case _ =>
+        super.writeValue(writer, encoderContext, value, codecRegistry)
+    }
+  }
 }

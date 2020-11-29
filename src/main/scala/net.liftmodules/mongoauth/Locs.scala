@@ -65,7 +65,7 @@ trait LifeCycleLocs {
   ))
 
   protected def loginTokenLocParams = RequireNotLoggedIn ::
-    EarlyResponse(() => userMeta.handleLoginToken) :: Nil
+    EarlyResponse(() => userMeta.handleLoginToken()) :: Nil
 
 }
 
